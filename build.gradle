@@ -1,0 +1,34 @@
+plugins {
+    id 'java'
+    id 'net.neoforged.gradle.userdev' version '7.0.145'
+}
+
+group = mod_group_id
+version = mod_version
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+base {
+    archivesName = mod_id
+}
+
+dependencies {
+    implementation "net.neoforged:neoforge:${neoforge_version}"
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    def replaceProps = [
+        mod_version       : mod_version,
+        mod_id            : mod_id,
+        mod_name          : mod_name,
+        mod_authors       : mod_authors,
+        mod_license       : mod_license,
+        mod_description   : mod_description,
+        minecraft_version : minecraft_version,
+        neoforge_version  : neoforge_version,
+    ]
+    inputs.properties replaceProps
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProps
+    }
+}
