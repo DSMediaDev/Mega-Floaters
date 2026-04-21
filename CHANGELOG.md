@@ -31,3 +31,14 @@ Versioning: [Semantic Versioning](https://semver.org/).
   biomes get spruce over snow with no ground cover, and deserts and
   badlands scatter dead bushes. Ponds carve into the top surface and
   may spawn a visible waterfall where they touch the rim.
+- Ores are scattered through each island's stone core using vanilla
+  ore veins, weighted toward coal and iron with rare gold, redstone,
+  lapis, and small diamond veins. Vein density scales with island
+  radius squared and has a 1.5× multiplier over ground-equivalent
+  distribution — stripping a floater should feel rewarding.
+- Ancient ruins sit on 2% of islands: a 5×5 mossy-cobblestone floor
+  with partial crumbling walls and a random doorway. The loot chest
+  lands in the next release.
+- Dragon-nest placeholders sit on 5% of islands: a cobblestone rim
+  around a sand bed. Eggs are added by the Bluedude Dragons
+  integration in a later release.

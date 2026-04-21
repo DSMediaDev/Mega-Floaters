@@ -6,7 +6,9 @@ import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfigur
 
 public record FloaterFeatureConfig(int minRadius, int maxRadius,
                                    int minThickness, int maxThickness,
-                                   float edgeChance, boolean placeTree)
+                                   float edgeChance, boolean placeTree,
+                                   float ruinChance, float nestChance,
+                                   float oreCountMultiplier)
         implements FeatureConfiguration {
 
     public static final Codec<FloaterFeatureConfig> CODEC = RecordCodecBuilder.create(inst -> inst.group(
@@ -15,6 +17,9 @@ public record FloaterFeatureConfig(int minRadius, int maxRadius,
             Codec.INT.fieldOf("min_thickness").forGetter(FloaterFeatureConfig::minThickness),
             Codec.INT.fieldOf("max_thickness").forGetter(FloaterFeatureConfig::maxThickness),
             Codec.FLOAT.fieldOf("edge_chance").forGetter(FloaterFeatureConfig::edgeChance),
-            Codec.BOOL.fieldOf("place_tree").forGetter(FloaterFeatureConfig::placeTree)
+            Codec.BOOL.fieldOf("place_tree").forGetter(FloaterFeatureConfig::placeTree),
+            Codec.FLOAT.optionalFieldOf("ruin_chance", 0.02f).forGetter(FloaterFeatureConfig::ruinChance),
+            Codec.FLOAT.optionalFieldOf("nest_chance", 0.05f).forGetter(FloaterFeatureConfig::nestChance),
+            Codec.FLOAT.optionalFieldOf("ore_count_multiplier", 1.5f).forGetter(FloaterFeatureConfig::oreCountMultiplier)
     ).apply(inst, FloaterFeatureConfig::new));
 }

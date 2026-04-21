@@ -7,6 +7,8 @@ import gg.dsmedia.megafloaters.api.palette.SurfacePaletteRegistry;
 import gg.dsmedia.megafloaters.api.palette.VegetationSpec;
 import gg.dsmedia.megafloaters.api.palette.WaterFeatureSpec;
 import gg.dsmedia.megafloaters.archetype.FloaterArchetype;
+import gg.dsmedia.megafloaters.structure.AncientRuin;
+import gg.dsmedia.megafloaters.structure.DragonNest;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
@@ -63,6 +65,11 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
         }
         scatterGroundCover(level, rng, topPositions, palette.vegetation());
         maybeAddWater(level, rng, topPositions, palette.waterFeatures());
+
+        OrePlacer.scatter(level, gen, rng, origin, radius, thickness, palette, cfg.oreCountMultiplier());
+
+        maybeAddRuin(level, rng, topPositions, cfg.ruinChance());
+        maybeAddNest(level, rng, topPositions, cfg.nestChance());
 
         return true;
     }
@@ -132,6 +139,22 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
             if (SurfaceScanner.isRim(level, candidate)) return candidate;
         }
         return null;
+    }
+
+    private static void maybeAddRuin(WorldGenLevel level, RandomSource rng, List<BlockPos> tops,
+                                     float chance) {
+        if (chance <= 0.0f || rng.nextFloat() >= chance) return;
+        BlockPos floor = pickInterior(level, tops, rng);
+        if (floor == null) return;
+        AncientRuin.place(level, floor, rng);
+    }
+
+    private static void maybeAddNest(WorldGenLevel level, RandomSource rng, List<BlockPos> tops,
+                                     float chance) {
+        if (chance <= 0.0f || rng.nextFloat() >= chance) return;
+        BlockPos nestFloor = pickInterior(level, tops, rng);
+        if (nestFloor == null) return;
+        DragonNest.place(level, nestFloor, rng);
     }
 
     private static void carvePond(WorldGenLevel level, BlockPos center) {
