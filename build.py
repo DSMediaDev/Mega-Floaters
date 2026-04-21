@@ -77,20 +77,43 @@ def find_java() -> Path:
     sys.exit("ERROR: javac not found. Install OpenJDK 21.")
 
 
-def find_jar(pattern: str, min_classes: int = 0) -> Path | None:
-    """Find a cached jar whose name matches `pattern`."""
-    for p in GRADLE_CACHE.rglob(pattern):
-        if p.is_file() and p.suffix == ".jar":
-            return p
-    return None
+def find_latest_jar(glob_pattern: str, *, search_root: Path = GRADLE_CACHE) -> Path | None:
+    """Return the newest jar matching `glob_pattern` under `search_root`.
+
+    "Newest" is simply mtime — fine for per-artifact version selection
+    because gradle touches the latest version it resolves most recently.
+    """
+    matches = [p for p in search_root.rglob(glob_pattern) if p.is_file()]
+    if not matches:
+        return None
+    matches.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    return matches[0]
+
+
+REQUIRED_JARS: list[tuple[str, str]] = [
+    # (description, glob pattern under ~/.gradle/caches/modules-2/files-2.1)
+    ("NeoForge universal",    "modules-2/files-2.1/net.neoforged/neoforge/*/*/neoforge-*-universal.jar"),
+    ("DataFixerUpper",        "modules-2/files-2.1/com.mojang/datafixerupper/*/*/datafixerupper-*.jar"),
+    ("NeoForge event bus",    "modules-2/files-2.1/net.neoforged/bus/*/*/bus-*.jar"),
+    ("Brigadier",             "modules-2/files-2.1/com.mojang/brigadier/*/*/brigadier-*.jar"),
+    ("Mojang logging",        "modules-2/files-2.1/com.mojang/logging/*/*/logging-*.jar"),
+    ("SLF4J API",             "modules-2/files-2.1/org.slf4j/slf4j-api/2.*/*/slf4j-api-*.jar"),
+    ("FancyModLoader",        "modules-2/files-2.1/net.neoforged.fancymodloader/loader/*/*/loader-*.jar"),
+    # mergetool-api hosts net.neoforged.api.distmarker.Dist — needed for
+    # @OnlyIn / side-gated code. Without it javac emits "unknown enum
+    # constant Dist.CLIENT" warnings even on code that doesn't use it
+    # (the annotation targets reference the enum).
+    ("Dist marker (mergetool-api)", "modules-2/files-2.1/net.neoforged/mergetool/*/*/mergetool-*-api.jar"),
+]
 
 
 def discover_classpath(verbose: bool) -> list[Path]:
-    """Locate MC, NeoForge, and DFU jars in the gradle cache."""
+    """Locate the compile-time classpath jars in the gradle cache."""
     jars: list[Path] = []
 
-    # Minecraft joined deobf jar — NeoGradle emits it under ng_execute.
-    # Pick the largest output.jar we can find (the MC one is ~40MB).
+    # Minecraft joined deobf jar — NeoGradle emits output.jar under
+    # ng_execute; pick the largest (the MC one is tens of MB, others
+    # are tiny intermediate artifacts).
     mc_candidates = sorted(
         GRADLE_CACHE.glob("ng_execute/*/output.jar"),
         key=lambda p: p.stat().st_size,
@@ -103,15 +126,11 @@ def discover_classpath(verbose: bool) -> list[Path]:
         )
     jars.append(mc_candidates[0])
 
-    neoforge = find_jar("neoforge-21.1.*-universal.jar")
-    if not neoforge:
-        sys.exit("ERROR: NeoForge universal jar not found in gradle cache.")
-    jars.append(neoforge)
-
-    dfu = find_jar("datafixerupper-*.jar")
-    if not dfu:
-        sys.exit("ERROR: DataFixerUpper jar not found in gradle cache.")
-    jars.append(dfu)
+    for name, pattern in REQUIRED_JARS:
+        found = find_latest_jar(pattern)
+        if not found:
+            sys.exit(f"ERROR: {name} jar not found in gradle cache (pattern: {pattern}).")
+        jars.append(found)
 
     if verbose:
         print("Classpath:")
