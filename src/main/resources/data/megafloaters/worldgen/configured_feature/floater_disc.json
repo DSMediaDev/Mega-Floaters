@@ -1,0 +1,9 @@
+{
+  "type": "megafloaters:floater",
+  "config": {
+    "radius": 12,
+    "thickness": 6,
+    "edge_chance": 0.6,
+    "place_tree": true
+  }
+}

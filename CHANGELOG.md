@@ -9,3 +9,6 @@ Versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - Initial project scaffold (pre-release).
+- Disc-archetype floating islands in the overworld: grass/dirt/stone
+  surface, one oak tree on top, organic rim. Bell-curve altitude
+  distribution between y=150 and y=290.
