@@ -1,7 +1,7 @@
 modLoader="javafml"
 loaderVersion="[4,)"
 license="${mod_license}"
-issueTrackerURL="https://github.com/DSMedia-gg/Dentals-Mega-Floaters/issues"
+issueTrackerURL="https://github.com/DSMediaDev/Mega-Floaters/issues"
 
 [[mods]]
 modId="${mod_id}"

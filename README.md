@@ -55,3 +55,7 @@ LGPL-3.0-or-later. See [LICENSE](LICENSE).
 ## Credits
 
 Authored by DentalStone.
+
+## Source
+
+Repository: https://github.com/DSMediaDev/Mega-Floaters
