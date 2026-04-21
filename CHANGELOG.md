@@ -9,6 +9,12 @@ Versioning: [Semantic Versioning](https://semver.org/).
 
 ### Added
 - Initial project scaffold (pre-release).
-- Disc-archetype floating islands in the overworld: grass/dirt/stone
-  surface, one oak tree on top, organic rim. Bell-curve altitude
-  distribution between y=150 and y=290.
+- Floating islands in the overworld at y=150-290 with a bell-curve
+  altitude distribution, organic rim, and one oak tree on suitable
+  archetypes.
+- Five island archetypes: disc, cone, mesa, cluster, spire.
+  Archetype is chosen per spawn from a biome-weighted table — taiga
+  favours spires, jungle favours cones, ocean favours discs and
+  clusters, badlands favours mesas, and so on. Island radius and
+  thickness roll from a triangular distribution; spires apply
+  additional tall-and-narrow multipliers.

@@ -1,5 +1,5 @@
 {
-  "feature": "megafloaters:floater_disc",
+  "feature": "megafloaters:floater",
   "placement": [
     { "type": "minecraft:rarity_filter", "chance": 5 },
     { "type": "minecraft:in_square" },

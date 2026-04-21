@@ -1,6 +1,6 @@
 {
   "type": "neoforge:add_features",
   "biomes": "#minecraft:is_overworld",
-  "features": "megafloaters:floater_disc",
+  "features": "megafloaters:floater",
   "step": "top_layer_modification"
 }
