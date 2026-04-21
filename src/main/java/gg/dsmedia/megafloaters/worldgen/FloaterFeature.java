@@ -7,6 +7,7 @@ import gg.dsmedia.megafloaters.api.palette.SurfacePaletteRegistry;
 import gg.dsmedia.megafloaters.api.palette.VegetationSpec;
 import gg.dsmedia.megafloaters.api.palette.WaterFeatureSpec;
 import gg.dsmedia.megafloaters.archetype.FloaterArchetype;
+import gg.dsmedia.megafloaters.loot.MegaFloatersLootTables;
 import gg.dsmedia.megafloaters.structure.AncientRuin;
 import gg.dsmedia.megafloaters.structure.DragonNest;
 import net.minecraft.core.BlockPos;
@@ -146,7 +147,7 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
         if (chance <= 0.0f || rng.nextFloat() >= chance) return;
         BlockPos floor = pickInterior(level, tops, rng);
         if (floor == null) return;
-        AncientRuin.place(level, floor, rng);
+        AncientRuin.place(level, floor, MegaFloatersLootTables.pickTier(rng), rng);
     }
 
     private static void maybeAddNest(WorldGenLevel level, RandomSource rng, List<BlockPos> tops,

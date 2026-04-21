@@ -1,16 +1,19 @@
 package gg.dsmedia.megafloaters.structure;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootTable;
 
 /**
- * A 5×5×3 crumbling stone ruin on the island's top surface.
+ * 5×5×3 crumbling stone ruin with a single loot chest at the center.
  *
- * <p>Step 7 placeholder — the loot chest is added in step 8, which is why
- * this class just sketches the stone silhouette for now.
+ * <p>The loot table is picked by the caller (see {@code MegaFloatersLootTables.pickTier}).
  */
 public final class AncientRuin {
 
@@ -18,10 +21,12 @@ public final class AncientRuin {
     private static final BlockState MOSSY = Blocks.MOSSY_COBBLESTONE.defaultBlockState();
     private static final BlockState CRACKED = Blocks.CRACKED_STONE_BRICKS.defaultBlockState();
     private static final BlockState AIR = Blocks.AIR.defaultBlockState();
+    private static final BlockState CHEST = Blocks.CHEST.defaultBlockState();
 
     private AncientRuin() {}
 
-    public static void place(WorldGenLevel level, BlockPos floorCenter, RandomSource rng) {
+    public static void place(WorldGenLevel level, BlockPos floorCenter,
+                             ResourceKey<LootTable> lootTable, RandomSource rng) {
         BlockPos.MutableBlockPos mut = new BlockPos.MutableBlockPos();
         int baseY = floorCenter.getY() + 1;
 
@@ -33,8 +38,7 @@ public final class AncientRuin {
             }
         }
 
-        // Two-high perimeter walls with gaps for the "crumbling" look. Every
-        // position on the outermost ring rolls 70% to exist.
+        // Two-high perimeter walls with gaps for the crumbling look.
         for (int dy = 1; dy <= 2; dy++) {
             for (int dx = -2; dx <= 2; dx++) {
                 for (int dz = -2; dz <= 2; dz++) {
@@ -47,7 +51,7 @@ public final class AncientRuin {
             }
         }
 
-        // Doorway: clear two blocks on one side so the chest (step 8) is reachable.
+        // Doorway on one random side so the chest is reachable.
         int side = rng.nextInt(4);
         int doorX = floorCenter.getX(), doorZ = floorCenter.getZ();
         switch (side) {
@@ -60,6 +64,15 @@ public final class AncientRuin {
         level.setBlock(mut, AIR, 2);
         mut.set(doorX, baseY + 2, doorZ);
         level.setBlock(mut, AIR, 2);
+
+        // Chest at center of floor, one above the floor surface.
+        BlockPos chestPos = new BlockPos(floorCenter.getX(), baseY + 1, floorCenter.getZ());
+        level.setBlock(chestPos, CHEST, 2);
+        BlockEntity be = level.getBlockEntity(chestPos);
+        if (be instanceof RandomizableContainerBlockEntity chest) {
+            chest.setLootTable(lootTable);
+            chest.setLootTableSeed(rng.nextLong());
+        }
     }
 
     private static BlockState pickFloor(RandomSource rng) {

@@ -37,8 +37,11 @@ Versioning: [Semantic Versioning](https://semver.org/).
   radius squared and has a 1.5× multiplier over ground-equivalent
   distribution — stripping a floater should feel rewarding.
 - Ancient ruins sit on 2% of islands: a 5×5 mossy-cobblestone floor
-  with partial crumbling walls and a random doorway. The loot chest
-  lands in the next release.
+  with partial crumbling walls, a random doorway, and a single loot
+  chest rolled from three tiers — iron (60%), diamond (30%), or end
+  (10%). End-tier chests have a chance to drop Create Aeronautics
+  levitite buckets, Create precision mechanisms, or Bluedude Dragons
+  eggs when the respective mod is installed.
 - Dragon-nest placeholders sit on 5% of islands: a cobblestone rim
   around a sand bed. Eggs are added by the Bluedude Dragons
   integration in a later release.
