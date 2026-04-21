@@ -21,6 +21,13 @@ Versioning: [Semantic Versioning](https://semver.org/).
 - Biome-matched surface palettes: sand + sandstone in deserts, red
   sand over terracotta in badlands, snow over stone in snowy biomes,
   coarse dirt in taiga, mud over dirt in mangrove, end stone in the
-  end, and the classic grass + dirt + stone everywhere else. Trees
-  are suppressed on non-grass palettes until the full vegetation
-  system ships.
+  end, and the classic grass + dirt + stone everywhere else.
+- Biome-appropriate surface content: each palette ships its own tree
+  list, ground-cover blocks, and pond/waterfall chances. Plains keep
+  oaks and dandelions, forests mix oak and birch, savannas roll
+  acacia or oak, jungles fill with dense jungle trees and ferns,
+  taiga grows spruce over coarse dirt, mangrove gets mangrove trees
+  over mud with frequent ponds, dark forest prefers dark oak, snowy
+  biomes get spruce over snow with no ground cover, and deserts and
+  badlands scatter dead bushes. Ponds carve into the top surface and
+  may spawn a visible waterfall where they touch the rim.
