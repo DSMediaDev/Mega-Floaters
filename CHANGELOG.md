@@ -7,6 +7,18 @@ Versioning: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-04-22
+
+### Fixed
+- **Bluedude Dragons server-crash workaround.** Natural, chunk-gen,
+  and patrol spawns of any `bdd:*` entity are now cancelled via
+  `FinalizeSpawnEvent` whenever BDD is loaded. This dodges a server
+  crash in BDD v1.3.0-alpha where `BddAbilityDragon.fireProjectile`
+  loads a client-only keybinds class on the dedicated server and
+  kills the tick thread. Egg hatches, breeding, command spawns, and
+  spawn eggs keep working — only wild spawns are suppressed until
+  BDD ships a fix.
+
 ## [0.4.0] - 2026-04-22
 
 ### Added
