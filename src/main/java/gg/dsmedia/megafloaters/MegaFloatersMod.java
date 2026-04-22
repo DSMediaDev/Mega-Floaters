@@ -5,6 +5,7 @@ import gg.dsmedia.megafloaters.command.MegaFloatersCommand;
 import gg.dsmedia.megafloaters.event.SpawnSuppression;
 import gg.dsmedia.megafloaters.integration.AeronauticsCompat;
 import gg.dsmedia.megafloaters.integration.BddCompat;
+import gg.dsmedia.megafloaters.integration.KubeJSCompat;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -29,5 +30,6 @@ public class MegaFloatersMod {
         // mods have finished registering content.
         AeronauticsCompat.init();
         BddCompat.init();
+        KubeJSCompat.init();
     }
 }

@@ -45,8 +45,42 @@ All optional; detected at runtime. No errors if absent.
 - **Bluedude Dragons** — dragon nests with biome-rolled egg species,
   spawn buff near islands.
 - **FTB Quests** — custom observation events for quest integration.
-- **KubeJS** — server-scripts API for registering archetypes and
-  overriding palettes.
+- **KubeJS** — server-scripts can read island state and react to
+  island placement via the public API (see below).
+
+## Scripting (KubeJS)
+
+The public API (`gg.dsmedia.megafloaters.api.MegaFloatersAPI`) is a
+plain Java static facade, so KubeJS `server_scripts` can call it
+directly. Defensive Rhino patterns apply — use `let` rather than
+`const`, treat method-like accessors as methods (call them with
+parentheses), and avoid ES6 object shorthand.
+
+Listening for island placement (fires in newly-generated chunks):
+
+```javascript
+// server_scripts/floaters.js
+NeoForge.onEvent('gg.dsmedia.megafloaters.api.IslandPlacedEvent', event => {
+    let info = event.getIsland()
+    let pos = info.center()
+    console.info('island placed: ' + info.archetype() + ' r=' + info.radius() + ' @ ' + pos)
+})
+```
+
+Reading island state at a position (e.g. for a custom advancement trigger):
+
+```javascript
+let API = Java.loadClass('gg.dsmedia.megafloaters.api.MegaFloatersAPI')
+
+ServerEvents.commandRegistry(event => {
+    // ... register a command that calls API.getIslandAt(level, pos) ...
+})
+```
+
+`API.getIslandsNear(serverLevel, blockPos, radiusBlocks)` returns a
+Java list of `IslandInfo`. Each entry exposes `id()`, `archetype()`,
+`center()`, `radius()`, `thickness()`, `biome()`, `hasRuin()`,
+`hasNest()`, `hasLevitite()`, and `placedAtTick()`.
 
 ## License
 

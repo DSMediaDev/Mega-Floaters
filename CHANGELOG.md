@@ -87,3 +87,7 @@ Versioning: [Semantic Versioning](https://semver.org/).
   `ArchetypeBuilder` ships as a forward-compat interface; external
   archetype registration is a no-op in v0.1 and will light up in a
   future release.
+- KubeJS integration: `server_scripts` can subscribe to
+  `IslandPlacedEvent` via `NeoForge.onEvent(...)` and call
+  `MegaFloatersAPI` static methods directly. README includes example
+  snippets with defensive Rhino patterns.
