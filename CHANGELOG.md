@@ -103,3 +103,7 @@ Versioning: [Semantic Versioning](https://semver.org/).
   archipelago (3× density, 40% of regions), void (no islands, 20% of
   regions), or normal (unchanged, 40%). Visible at map scale; players
   get meaningful sky-dense zones to build on.
+- Mountain peak avoidance: island placements now check the ground
+  heightmap below them and reject any roll that falls within 20
+  blocks of a tall peak. Floaters stay visually separate from the
+  mountains they drift past.

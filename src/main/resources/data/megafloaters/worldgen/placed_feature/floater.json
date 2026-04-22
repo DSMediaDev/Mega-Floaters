@@ -18,6 +18,7 @@
         "plateau": 28
       }
     },
+    { "type": "megafloaters:mountain_peak_avoidance", "safety_gap": 20 },
     { "type": "minecraft:biome" }
   ]
 }
