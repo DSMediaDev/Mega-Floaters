@@ -80,3 +80,10 @@ Versioning: [Semantic Versioning](https://semver.org/).
 - Dragon spawn buff now live: when Bluedude Dragons is installed, a
   dragon attempting to spawn naturally within 48 blocks of any
   registered floater island has its spawn forced through.
+- Public API (`gg.dsmedia.megafloaters.api`) — pre-1.0 stable surface
+  other mods and scripts can target. `MegaFloatersAPI` exposes
+  `getIslandAt`, `getIslandsNear`, and access to the event bus where
+  `IslandPlacedEvent` is posted after each island finishes generating.
+  `ArchetypeBuilder` ships as a forward-compat interface; external
+  archetype registration is a no-op in v0.1 and will light up in a
+  future release.

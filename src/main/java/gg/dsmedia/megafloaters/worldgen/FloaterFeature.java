@@ -13,6 +13,7 @@ import gg.dsmedia.megafloaters.api.palette.WaterFeatureSpec;
 import gg.dsmedia.megafloaters.archetype.FloaterArchetype;
 import gg.dsmedia.megafloaters.integration.AeronauticsCompat;
 import gg.dsmedia.megafloaters.integration.BddCompat;
+import gg.dsmedia.megafloaters.api.IslandPlacedEvent;
 import gg.dsmedia.megafloaters.loot.MegaFloatersLootTables;
 import gg.dsmedia.megafloaters.registry.IslandRecord;
 import gg.dsmedia.megafloaters.registry.IslandRegistry;
@@ -20,6 +21,7 @@ import gg.dsmedia.megafloaters.structure.AncientRuin;
 import gg.dsmedia.megafloaters.structure.DragonNest;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
+import net.neoforged.neoforge.common.NeoForge;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
@@ -138,6 +140,7 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
                 featureFlags[2],
                 level.getLevel().getGameTime());
         IslandRegistry.get(level.getLevel()).add(record);
+        NeoForge.EVENT_BUS.post(new IslandPlacedEvent(level.getLevel(), record));
     }
 
     /**
