@@ -98,3 +98,8 @@ Versioning: [Semantic Versioning](https://semver.org/).
   that listen for this event fire exactly once per island per player.
   FTB Quests and any mod with a NeoForge-event task type can use this
   directly; bundled quests are not part of the mod.
+- Archipelago clustering: islands no longer spread uniformly across
+  the overworld. Each 32×32-chunk region is classified once as
+  archipelago (3× density, 40% of regions), void (no islands, 20% of
+  regions), or normal (unchanged, 40%). Visible at map scale; players
+  get meaningful sky-dense zones to build on.

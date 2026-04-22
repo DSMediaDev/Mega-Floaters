@@ -1,7 +1,14 @@
 {
   "feature": "megafloaters:floater",
   "placement": [
-    { "type": "minecraft:rarity_filter", "chance": 5 },
+    {
+      "type": "megafloaters:archipelago",
+      "region_size": 32,
+      "archipelago_chance": 0.4,
+      "void_chance": 0.2,
+      "base_rarity": 5,
+      "archipelago_multiplier": 3.0
+    },
     { "type": "minecraft:in_square" },
     { "type": "minecraft:height_range",
       "height": {

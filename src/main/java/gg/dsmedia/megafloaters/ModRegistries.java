@@ -2,6 +2,7 @@ package gg.dsmedia.megafloaters;
 
 import gg.dsmedia.megafloaters.worldgen.FloaterFeature;
 import gg.dsmedia.megafloaters.worldgen.FloaterFeatureConfig;
+import gg.dsmedia.megafloaters.worldgen.placement.ArchipelagoPlacement;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
@@ -19,6 +20,9 @@ public final class ModRegistries {
 
     public static final DeferredHolder<Feature<?>, FloaterFeature> FLOATER =
             FEATURES.register("floater", () -> new FloaterFeature(FloaterFeatureConfig.CODEC));
+
+    public static final DeferredHolder<PlacementModifierType<?>, PlacementModifierType<ArchipelagoPlacement>> ARCHIPELAGO_PLACEMENT =
+            PLACEMENT_MODIFIERS.register("archipelago", () -> () -> ArchipelagoPlacement.CODEC);
 
     private ModRegistries() {}
 
