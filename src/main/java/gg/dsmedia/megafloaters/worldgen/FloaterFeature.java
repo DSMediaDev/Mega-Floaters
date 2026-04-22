@@ -82,7 +82,54 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
         }
 
         archetype.build(level, origin, radius, thickness, cfg.edgeChance(), palette, rng);
+        ResourceLocation archetypeId = ResourceLocation.fromNamespaceAndPath(
+                MegaFloatersMod.MOD_ID, archetype.getSerializedName());
+        return finalizeAfterBuild(level, gen, origin, cfg, archetypeId, radius, thickness,
+                palette, biome, archetype.placesTree(), rng);
+    }
 
+    /**
+     * Run the pipeline with an {@link gg.dsmedia.megafloaters.api.ArchetypeBuilder}
+     * supplied by an external mod or script. The builder's {@link
+     * gg.dsmedia.megafloaters.api.ArchetypeBuilder#build} produces the base
+     * shape; the post-build pipeline (top-surface scan, vegetation, water,
+     * ores, structures, optional-mod integration, chunk flag, registry)
+     * runs identically to the built-in path.
+     */
+    public static boolean generateWithBuilder(WorldGenLevel level, ChunkGenerator gen, BlockPos origin,
+                                              FloaterFeatureConfig cfg,
+                                              gg.dsmedia.megafloaters.api.ArchetypeBuilder builder,
+                                              ResourceLocation archetypeId,
+                                              int radiusOverride, int thicknessOverride,
+                                              RandomSource rng) {
+        Holder<Biome> biome = level.getBiome(origin);
+        SurfacePalette palette = SurfacePaletteRegistry.select(biome, archetypeId.getPath());
+
+        int radius, thickness;
+        if (radiusOverride > 0) {
+            radius = radiusOverride;
+        } else {
+            int base = Distributions.triangularInt(rng, cfg.minRadius(), cfg.maxRadius());
+            radius = Math.max(2, (int) Math.round(base * builder.radiusMult()));
+        }
+        if (thicknessOverride > 0) {
+            thickness = thicknessOverride;
+        } else {
+            int base = Distributions.triangularInt(rng, cfg.minThickness(), cfg.maxThickness());
+            thickness = Math.max(2, (int) Math.round(base * builder.thicknessMult()));
+        }
+
+        builder.build(level, origin, radius, thickness, cfg.edgeChance(), palette, rng);
+        return finalizeAfterBuild(level, gen, origin, cfg, archetypeId, radius, thickness,
+                palette, biome, builder.placesTree(), rng);
+    }
+
+    /** Post-build subfeature pipeline shared by both generate paths. */
+    private static boolean finalizeAfterBuild(WorldGenLevel level, ChunkGenerator gen, BlockPos origin,
+                                              FloaterFeatureConfig cfg, ResourceLocation archetypeId,
+                                              int radius, int thickness, SurfacePalette palette,
+                                              Holder<Biome> biome, boolean archetypeWantsTree,
+                                              RandomSource rng) {
         // Sub-feature tracking — what ended up on this island. Used both by the
         // registry record below and as the "has_*" hints for /info etc.
         boolean[] featureFlags = new boolean[] { false, false, false };  // ruin, nest, levitite
@@ -97,7 +144,7 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
             return true;
         }
 
-        if (cfg.placeTree() && archetype.placesTree()) {
+        if (cfg.placeTree() && archetypeWantsTree) {
             placeTrees(level, gen, rng, topPositions, palette.vegetation(), radius);
         }
         scatterGroundCover(level, rng, topPositions, palette.vegetation());
@@ -115,16 +162,14 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
         }
 
         flagChunksNoHostiles(level, origin, searchRadius);
-        recordIsland(level, origin, archetype, radius, thickness, biome, featureFlags);
+        recordIsland(level, origin, archetypeId, radius, thickness, biome, featureFlags);
 
         return true;
     }
 
-    private static void recordIsland(WorldGenLevel level, BlockPos origin, FloaterArchetype archetype,
+    private static void recordIsland(WorldGenLevel level, BlockPos origin, ResourceLocation archetypeId,
                                      int radius, int thickness, Holder<Biome> biome,
                                      boolean[] featureFlags) {
-        ResourceLocation archetypeId = ResourceLocation.fromNamespaceAndPath(
-                MegaFloatersMod.MOD_ID, archetype.getSerializedName());
         ResourceLocation biomeId = biome.unwrapKey()
                 .map(k -> k.location())
                 .orElseGet(() -> ResourceLocation.fromNamespaceAndPath("minecraft", "plains"));

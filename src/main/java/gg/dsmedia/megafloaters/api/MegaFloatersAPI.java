@@ -1,7 +1,10 @@
 package gg.dsmedia.megafloaters.api;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import gg.dsmedia.megafloaters.MegaFloatersMod;
 import gg.dsmedia.megafloaters.registry.IslandRecord;
@@ -21,6 +24,8 @@ import net.neoforged.neoforge.common.NeoForge;
  * major version post-1.0.
  */
 public final class MegaFloatersAPI {
+
+    private static final Map<ResourceLocation, ArchetypeBuilder> EXTERNAL = new ConcurrentHashMap<>();
 
     private MegaFloatersAPI() {}
 
@@ -51,22 +56,26 @@ public final class MegaFloatersAPI {
     }
 
     /**
-     * Reserved — external archetypes are not yet dispatched into the
-     * placement flow in v0.1. The call is accepted for forward compatibility
-     * and a warning is logged so authors know the registration is a no-op
-     * until a later release.
+     * Register an externally-defined archetype under the given id. Other mods
+     * or script runtimes can use this to add new island shapes that
+     * {@code /megafloaters spawn <id>} can drive. Externals are not yet part
+     * of the biome-weighted natural-spawn pool — they participate only in
+     * explicit placement (commands, the public generate helper, scripting).
      */
     public static void registerArchetype(ResourceLocation id, ArchetypeBuilder builder) {
-        MegaFloatersMod.LOGGER.warn(
-                "MegaFloatersAPI.registerArchetype({}) called — external archetypes are not "
-                        + "wired into placement in v0.1. The call is accepted but no-op.", id);
+        ArchetypeBuilder prior = EXTERNAL.put(id, builder);
+        if (prior != null) {
+            MegaFloatersMod.LOGGER.warn("Archetype {} was registered twice — newer entry wins.", id);
+        }
     }
 
-    /**
-     * Reserved companion to {@link #registerArchetype}. Returns empty in
-     * v0.1 since no external archetypes can be registered yet.
-     */
+    /** Look up a previously-registered external archetype. */
     public static Optional<ArchetypeBuilder> getArchetype(ResourceLocation id) {
-        return Optional.empty();
+        return Optional.ofNullable(EXTERNAL.get(id));
+    }
+
+    /** Snapshot of currently-registered external archetype ids. */
+    public static Map<ResourceLocation, ArchetypeBuilder> externalArchetypes() {
+        return Collections.unmodifiableMap(EXTERNAL);
     }
 }

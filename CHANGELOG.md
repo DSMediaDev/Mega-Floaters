@@ -8,6 +8,14 @@ Versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- External archetype dispatch. `MegaFloatersAPI.registerArchetype(id,
+  builder)` and `getArchetype(id)` are now functional — registered
+  archetypes can be spawned via `/megafloaters spawn <namespace:path>`
+  or driven directly through the new
+  `FloaterFeature.generateWithBuilder(...)` helper. Externals don't
+  yet participate in biome-weighted natural placement, but they share
+  the same post-build pipeline (vegetation, water, ores, structures,
+  integrations, chunk flag, registry record) as built-in archetypes.
 - Datapack-driven palette overrides. Drop a JSON file at
   `data/<ns>/megafloaters/palettes/<biome>.json` to replace the
   built-in palette for that biome, or at

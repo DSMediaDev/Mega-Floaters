@@ -106,10 +106,18 @@ public final class SurfacePaletteRegistry {
             Blocks.END_STONE.defaultBlockState());
 
     public static SurfacePalette select(Holder<Biome> biome, FloaterArchetype archetype) {
+        return select(biome, archetype.getSerializedName());
+    }
+
+    /**
+     * Path-keyed variant used for external archetypes that aren't part of the
+     * built-in {@link FloaterArchetype} enum.
+     */
+    public static SurfacePalette select(Holder<Biome> biome, String archetypePath) {
         // Datapack overrides take priority (biome+archetype first, then biome).
         ResourceLocation biomeId = biome.unwrapKey().map(k -> k.location()).orElse(null);
         if (biomeId != null) {
-            var override = SurfacePaletteManager.lookup(biomeId, archetype.getSerializedName());
+            var override = SurfacePaletteManager.lookup(biomeId, archetypePath);
             if (override.isPresent()) return override.get();
         }
 
