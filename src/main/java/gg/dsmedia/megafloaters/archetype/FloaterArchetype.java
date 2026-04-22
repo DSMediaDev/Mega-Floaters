@@ -19,8 +19,8 @@ public enum FloaterArchetype implements StringRepresentable {
         @Override
         public void build(WorldGenLevel level, BlockPos center, int radius, int thickness,
                           float edgeChance, SurfacePalette palette, RandomSource rng) {
-            // Vertical cliff — skip rim thinning entirely.
-            IslandBuilder.buildDisc(level, center, radius, thickness, 1.0f, palette, rng);
+            // Cliff-edged top with a tapered underside (no more pancake bottoms).
+            IslandBuilder.buildMesa(level, center, radius, thickness, palette, rng);
         }
     },
     CONE("cone") {

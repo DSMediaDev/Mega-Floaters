@@ -7,6 +7,24 @@ Versioning: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-04-22
+
+### Added
+- **Mesa-style islands get a tapered underside.** The bottom 50% of
+  the mesa's vertical extent narrows from full radius at the midpoint
+  down to 50% radius at the very bottom. Small mesa-shape islands no
+  longer look like floating dinner plates — they actually float.
+  Cluster sub-discs pick up the same taper.
+
+### Changed
+- **Aeronautics levitite pools are now gated on massive islands only**
+  (radius ≥ 12 post-multiplier). Smaller floaters skip the pool
+  entirely since it tended to take up their whole top surface.
+  Underside pearlescent scattering still runs on all sizes.
+- **Minimum island radius bumped from 6 to 10.** Smaller floaters
+  (radius 6–9) no longer generate, biasing the mix toward mid-to-large
+  islands.
+
 ## [0.3.1] - 2026-04-22
 
 ### Fixed

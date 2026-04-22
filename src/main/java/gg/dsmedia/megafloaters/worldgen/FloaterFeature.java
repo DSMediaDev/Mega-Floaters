@@ -40,6 +40,10 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
 
     private static final BlockState WATER = Blocks.WATER.defaultBlockState();
 
+    /** Radius (post-multiplier, post-clamp) above which an island counts as "massive"
+     *  and qualifies for the Aeronautics levitite pool. Smaller floaters stay pool-free. */
+    private static final int MASSIVE_ISLAND_THRESHOLD = 12;
+
     public FloaterFeature(com.mojang.serialization.Codec<FloaterFeatureConfig> codec) {
         super(codec);
     }
@@ -169,9 +173,14 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
         featureFlags[1] = maybeAddNest(level, rng, topPositions, cfg.nestChance(), biome);
 
         if (AeronauticsCompat.isActive()) {
-            AeronauticsCompat.placePool(level, topPositions, radius, rng);
+            // Pool only goes on massive islands — smaller floaters look wrong with a
+            // giant levitite patch. The underside embedding still happens on every
+            // size since it's sparse scattering, not a single big carve.
+            if (radius >= MASSIVE_ISLAND_THRESHOLD) {
+                AeronauticsCompat.placePool(level, topPositions, radius, rng);
+                featureFlags[2] = true;
+            }
             AeronauticsCompat.embedUnderside(level, origin, radius, thickness, palette, 0.08f, rng);
-            featureFlags[2] = true;
         }
 
         flagChunksNoHostiles(level, origin, searchRadius);
