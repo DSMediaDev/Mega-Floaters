@@ -3,9 +3,11 @@ package gg.dsmedia.megafloaters.api.palette;
 import java.util.List;
 
 import gg.dsmedia.megafloaters.archetype.FloaterArchetype;
+import gg.dsmedia.megafloaters.data.SurfacePaletteManager;
 import net.minecraft.core.Holder;
 import net.minecraft.data.worldgen.features.TreeFeatures;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
@@ -104,6 +106,13 @@ public final class SurfacePaletteRegistry {
             Blocks.END_STONE.defaultBlockState());
 
     public static SurfacePalette select(Holder<Biome> biome, FloaterArchetype archetype) {
+        // Datapack overrides take priority (biome+archetype first, then biome).
+        ResourceLocation biomeId = biome.unwrapKey().map(k -> k.location()).orElse(null);
+        if (biomeId != null) {
+            var override = SurfacePaletteManager.lookup(biomeId, archetype.getSerializedName());
+            if (override.isPresent()) return override.get();
+        }
+
         if (biome.is(BiomeTags.IS_END)) return END;
         if (biome.is(BiomeTags.IS_BADLANDS)) return BADLANDS;
         if (biome.is(BiomeTags.IS_JUNGLE)) return JUNGLE;

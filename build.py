@@ -104,6 +104,7 @@ REQUIRED_JARS: list[tuple[str, str]] = [
     # constant Dist.CLIENT" warnings even on code that doesn't use it
     # (the annotation targets reference the enum).
     ("Dist marker (mergetool-api)", "modules-2/files-2.1/net.neoforged/mergetool/*/*/mergetool-*-api.jar"),
+    ("Gson",                  "modules-2/files-2.1/com.google.code.gson/gson/*/*/gson-*.jar"),
 ]
 
 

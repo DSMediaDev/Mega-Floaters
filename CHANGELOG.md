@@ -8,6 +8,12 @@ Versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- Datapack-driven palette overrides. Drop a JSON file at
+  `data/<ns>/megafloaters/palettes/<biome>.json` to replace the
+  built-in palette for that biome, or at
+  `data/<ns>/megafloaters/palettes/<biome>/<archetype>.json` for
+  biome + archetype specific overrides. Resolution priority: biome +
+  archetype → biome → built-in default. Hot-reloaded with `/reload`.
 - Three more observation events complete the FTB Quests integration:
   - `RuinOpenedEvent` — posted on `NeoForge.EVENT_BUS` when a player
     right-clicks an unopened ruin chest. Fires exactly once per chest
