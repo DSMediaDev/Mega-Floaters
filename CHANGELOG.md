@@ -50,3 +50,10 @@ Versioning: [Semantic Versioning](https://semver.org/).
   scales with island radius) and a sparse scattering of pearlescent
   levitite on the exposed underside — the in-world reason the island
   floats. Skipped silently on packs without Aeronautics.
+- Bluedude Dragons integration: dragon nests are populated with 1–3
+  biome-appropriate eggs when BDD is installed. Nightfury eggs in
+  snowy biomes, deadly nadder in plains/savanna, gronckle in forests,
+  hideous zippleback in swamps and mangroves, monstrous nightmare in
+  deserts and badlands, speed stinger in taiga and old-growth forests,
+  and terrible terror everywhere else. The dragon spawn buff lands in
+  a later release once the island registry is in place.

@@ -3,6 +3,7 @@ package gg.dsmedia.megafloaters;
 import com.mojang.logging.LogUtils;
 import gg.dsmedia.megafloaters.command.MegaFloatersCommand;
 import gg.dsmedia.megafloaters.integration.AeronauticsCompat;
+import gg.dsmedia.megafloaters.integration.BddCompat;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -25,5 +26,6 @@ public class MegaFloatersMod {
         // Optional-mod integrations resolve their block/item ids here, after all
         // mods have finished registering content.
         AeronauticsCompat.init();
+        BddCompat.init();
     }
 }

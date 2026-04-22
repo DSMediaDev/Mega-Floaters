@@ -8,6 +8,7 @@ import gg.dsmedia.megafloaters.api.palette.VegetationSpec;
 import gg.dsmedia.megafloaters.api.palette.WaterFeatureSpec;
 import gg.dsmedia.megafloaters.archetype.FloaterArchetype;
 import gg.dsmedia.megafloaters.integration.AeronauticsCompat;
+import gg.dsmedia.megafloaters.integration.BddCompat;
 import gg.dsmedia.megafloaters.loot.MegaFloatersLootTables;
 import gg.dsmedia.megafloaters.structure.AncientRuin;
 import gg.dsmedia.megafloaters.structure.DragonNest;
@@ -71,7 +72,7 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
         OrePlacer.scatter(level, gen, rng, origin, radius, thickness, palette, cfg.oreCountMultiplier());
 
         maybeAddRuin(level, rng, topPositions, cfg.ruinChance());
-        maybeAddNest(level, rng, topPositions, cfg.nestChance());
+        maybeAddNest(level, rng, topPositions, cfg.nestChance(), biome);
 
         if (AeronauticsCompat.isActive()) {
             AeronauticsCompat.placePool(level, topPositions, radius, rng);
@@ -157,11 +158,14 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
     }
 
     private static void maybeAddNest(WorldGenLevel level, RandomSource rng, List<BlockPos> tops,
-                                     float chance) {
+                                     float chance, Holder<Biome> biome) {
         if (chance <= 0.0f || rng.nextFloat() >= chance) return;
         BlockPos nestFloor = pickInterior(level, tops, rng);
         if (nestFloor == null) return;
         DragonNest.place(level, nestFloor, rng);
+        if (BddCompat.isActive()) {
+            BddCompat.populateNest(level, nestFloor, biome, rng);
+        }
     }
 
     private static void carvePond(WorldGenLevel level, BlockPos center) {
