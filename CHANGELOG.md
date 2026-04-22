@@ -7,17 +7,30 @@ Versioning: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-04-22
+
+### Fixed
+- **BDD crash now patched at the source instead of blocking spawns.**
+  v0.4.1 worked around BDD v1.3.0-alpha's server-crashing
+  `fireProjectile` by cancelling every natural BDD spawn, which
+  removed wild dragons from the world entirely. v0.4.2 replaces that
+  with a Mixin injection into `BddAbilityDragon.fireProjectile` that
+  cancels the method body on dedicated servers — the client-only
+  keybinds class the method relies on is never loaded, so the tick
+  thread survives. Wild dragons now spawn normally and can bite and
+  melee. They can't use their ranged projectile attack on servers
+  until BDD ships an upstream fix, but they exist, persist, and
+  interact with the world again.
+
 ## [0.4.1] - 2026-04-22
 
 ### Fixed
-- **Bluedude Dragons server-crash workaround.** Natural, chunk-gen,
-  and patrol spawns of any `bdd:*` entity are now cancelled via
-  `FinalizeSpawnEvent` whenever BDD is loaded. This dodges a server
-  crash in BDD v1.3.0-alpha where `BddAbilityDragon.fireProjectile`
-  loads a client-only keybinds class on the dedicated server and
-  kills the tick thread. Egg hatches, breeding, command spawns, and
-  spawn eggs keep working — only wild spawns are suppressed until
-  BDD ships a fix.
+- **Bluedude Dragons server-crash workaround (superseded by 0.4.2).**
+  Natural, chunk-gen, and patrol spawns of any `bdd:*` entity were
+  cancelled via `FinalizeSpawnEvent` whenever BDD was loaded. This
+  dodged a server crash in BDD v1.3.0-alpha where
+  `BddAbilityDragon.fireProjectile` loads a client-only keybinds
+  class on the dedicated server and kills the tick thread.
 
 ## [0.4.0] - 2026-04-22
 

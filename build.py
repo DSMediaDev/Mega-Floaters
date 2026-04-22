@@ -105,7 +105,16 @@ REQUIRED_JARS: list[tuple[str, str]] = [
     # (the annotation targets reference the enum).
     ("Dist marker (mergetool-api)", "modules-2/files-2.1/net.neoforged/mergetool/*/*/mergetool-*-api.jar"),
     ("Gson",                  "modules-2/files-2.1/com.google.code.gson/gson/*/*/gson-*.jar"),
+    # Mixin annotation classes for the BDD fireProjectile redirect. No
+    # annotation processor runs — our @At/@Redirect targets use `remap =
+    # false` + literal descriptors, so no refmap is generated or needed.
+    ("SpongePowered Mixin",   "modules-2/files-2.1/net.fabricmc/sponge-mixin/*/*/sponge-mixin-*.jar"),
 ]
+
+# Extra compile-only deps that aren't published to Maven — resolved from
+# absolute paths rather than the gradle cache. Used for mixin targets into
+# foreign mods' classes, or any other non-cached dep.
+EXTRA_COMPILE_JARS: list[tuple[str, str]] = []
 
 
 def discover_classpath(verbose: bool) -> list[Path]:
@@ -132,6 +141,12 @@ def discover_classpath(verbose: bool) -> list[Path]:
         if not found:
             sys.exit(f"ERROR: {name} jar not found in gradle cache (pattern: {pattern}).")
         jars.append(found)
+
+    for name, abs_path in EXTRA_COMPILE_JARS:
+        p = Path(abs_path)
+        if not p.exists():
+            sys.exit(f"ERROR: {name} jar not found at {abs_path}.")
+        jars.append(p)
 
     if verbose:
         print("Classpath:")
@@ -211,6 +226,11 @@ def main() -> None:
                 "-d", str(CLASSES_DIR),
                 "-cp", cp_str,
                 "--release", "21",
+                # Sponge-Mixin's jar registers an annotation processor that
+                # needs ASM on its own classpath. We don't want it to run —
+                # our @At/@Redirect targets use `remap = false` and literal
+                # descriptors, so the refmap it would generate is irrelevant.
+                "-proc:none",
                 *[str(s) for s in sources],
             ],
             args.verbose,
