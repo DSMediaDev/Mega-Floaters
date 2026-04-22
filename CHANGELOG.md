@@ -7,6 +7,21 @@ Versioning: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-04-22
+
+### Fixed
+- End-tier ruin loot table now parses on 1.21.1. The mod-loaded-gated
+  pack drops were using a condition syntax that isn't applied at
+  loot-entry decode depth in NeoForge 1.21.1; they've been stripped
+  for now and will be re-added via `LootModifyEvent`.
+- Worldgen no longer spams the log with "Detected setBlock in a far
+  chunk" errors. Island radius is capped at 14 blocks post-multiplier,
+  tree placements are filtered to interior-only positions so canopies
+  don't spill across chunk boundaries, and the Aeronautics underside
+  embedding scan is tightened to `radius` exactly. Max practical
+  island radius in this release is therefore 14; larger islands need
+  structure-based generation which is slated for a later version.
+
 ### Added
 - End-dimension support. The end palette, end biome weights, and
   end archetype table have been in the mod since v0.1.0 but the end
