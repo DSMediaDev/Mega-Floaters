@@ -10,13 +10,11 @@ import net.minecraft.world.level.WorldGenLevel;
 
 public enum FloaterArchetype implements StringRepresentable {
 
-    DISC("disc") {
-        @Override
-        public void build(WorldGenLevel level, BlockPos center, int radius, int thickness,
-                          float edgeChance, SurfacePalette palette, RandomSource rng) {
-            IslandBuilder.buildDisc(level, center, radius, thickness, edgeChance, palette, rng);
-        }
-    },
+    // DISC archetype removed in v0.3.0 — the flat-pancake look landed too uniform
+    // once the rarity settled in-world; mesa + cone + cluster + spire cover the
+    // visual range without it. External mods can still register a disc-shaped
+    // ArchetypeBuilder via MegaFloatersAPI.registerArchetype if they want one.
+
     MESA("mesa") {
         @Override
         public void build(WorldGenLevel level, BlockPos center, int radius, int thickness,

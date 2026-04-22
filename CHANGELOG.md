@@ -7,6 +7,25 @@ Versioning: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-04-22
+
+### Removed
+- **Disc archetype**. Live-play feedback was that flat-pancake islands
+  looked too uniform once several spawned near each other. The four
+  remaining archetypes (mesa, cone, cluster, spire) cover the visual
+  range without it. External mods wanting a disc can still register
+  one via `MegaFloatersAPI.registerArchetype`.
+
+### Changed
+- **Island rarity 3x lower**: `base_rarity` default in
+  `ArchipelagoPlacement` bumped from 5 to 15, matching the updated
+  defaults in both `placed_feature/floater.json` and
+  `placed_feature/floater_end.json`. Prior density produced full
+  skies of floaters; new density leaves meaningful gaps between
+  archipelago zones.
+- `BiomeArchetypeWeights` is now a 4-element table per biome (the
+  DISC column was folded into mesa + cluster).
+
 ## [0.2.0] - 2026-04-22
 
 ### Fixed

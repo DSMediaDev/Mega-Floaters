@@ -9,14 +9,15 @@ import net.minecraft.world.level.biome.Biome;
 
 public final class BiomeArchetypeWeights {
 
-    // Weight order: DISC, MESA, CONE, CLUSTER, SPIRE (matches FloaterArchetype declaration order).
-    private static final int[] PLAINS  = {45, 10, 20, 15, 10};
-    private static final int[] DESERT  = {20, 50,  0, 10, 20};
-    private static final int[] JUNGLE  = {30,  0, 40, 20, 10};
-    private static final int[] TAIGA   = {30,  0, 20, 15, 35};
-    private static final int[] OCEAN   = {40,  0,  0, 40, 20};
-    private static final int[] END     = {30, 30,  5, 10, 25};
-    private static final int[] FALLBACK = {30, 15, 25, 15, 15};
+    // Weight order: MESA, CONE, CLUSTER, SPIRE (matches FloaterArchetype declaration order
+    // post-v0.3.0 DISC removal). Any disc weight was folded into mesa + cluster.
+    private static final int[] PLAINS   = {25, 35, 25, 15};
+    private static final int[] DESERT   = {60, 10, 10, 20};
+    private static final int[] JUNGLE   = { 5, 55, 30, 10};
+    private static final int[] TAIGA    = {10, 25, 20, 45};
+    private static final int[] OCEAN    = {10, 10, 60, 20};
+    private static final int[] END      = {40, 10, 15, 35};
+    private static final int[] FALLBACK = {30, 30, 20, 20};
 
     private BiomeArchetypeWeights() {}
 
@@ -24,7 +25,7 @@ public final class BiomeArchetypeWeights {
         int[] weights = weightsFor(biome);
         int total = 0;
         for (int w : weights) total += w;
-        if (total <= 0) return FloaterArchetype.DISC;
+        if (total <= 0) return FloaterArchetype.MESA;
 
         int roll = rng.nextInt(total);
         int cum = 0;
@@ -33,7 +34,7 @@ public final class BiomeArchetypeWeights {
             cum += weights[i];
             if (roll < cum) return values[i];
         }
-        return FloaterArchetype.DISC;
+        return FloaterArchetype.MESA;
     }
 
     private static int[] weightsFor(Holder<Biome> biome) {

@@ -37,7 +37,7 @@ public class ArchipelagoPlacement extends PlacementModifier {
                     .forGetter(p -> p.archipelagoChance),
             com.mojang.serialization.Codec.FLOAT.optionalFieldOf("void_chance", 0.2f)
                     .forGetter(p -> p.voidChance),
-            com.mojang.serialization.Codec.INT.optionalFieldOf("base_rarity", 5)
+            com.mojang.serialization.Codec.INT.optionalFieldOf("base_rarity", 15)
                     .forGetter(p -> p.baseRarity),
             com.mojang.serialization.Codec.FLOAT.optionalFieldOf("archipelago_multiplier", 3.0f)
                     .forGetter(p -> p.archipelagoMultiplier)

@@ -6,7 +6,7 @@
       "region_size": 32,
       "archipelago_chance": 0.4,
       "void_chance": 0.2,
-      "base_rarity": 5,
+      "base_rarity": 15,
       "archipelago_multiplier": 3.0
     },
     { "type": "minecraft:in_square" },
