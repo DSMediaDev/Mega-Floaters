@@ -107,3 +107,9 @@ Versioning: [Semantic Versioning](https://semver.org/).
   heightmap below them and reject any roll that falls within 20
   blocks of a tall peak. Floaters stay visually separate from the
   mountains they drift past.
+
+### Deferred to a later release
+
+- Drifting islands via Sable. The plan flagged this as a stretch spike
+  with a clean fallback (static islands) if the API didn't pan out.
+  Deferred for v0.1.0 — static islands are shipping.
