@@ -7,6 +7,7 @@ import gg.dsmedia.megafloaters.api.palette.SurfacePaletteRegistry;
 import gg.dsmedia.megafloaters.api.palette.VegetationSpec;
 import gg.dsmedia.megafloaters.api.palette.WaterFeatureSpec;
 import gg.dsmedia.megafloaters.archetype.FloaterArchetype;
+import gg.dsmedia.megafloaters.integration.AeronauticsCompat;
 import gg.dsmedia.megafloaters.loot.MegaFloatersLootTables;
 import gg.dsmedia.megafloaters.structure.AncientRuin;
 import gg.dsmedia.megafloaters.structure.DragonNest;
@@ -71,6 +72,11 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
 
         maybeAddRuin(level, rng, topPositions, cfg.ruinChance());
         maybeAddNest(level, rng, topPositions, cfg.nestChance());
+
+        if (AeronauticsCompat.isActive()) {
+            AeronauticsCompat.placePool(level, topPositions, radius, rng);
+            AeronauticsCompat.embedUnderside(level, origin, radius, thickness, palette, 0.08f, rng);
+        }
 
         return true;
     }

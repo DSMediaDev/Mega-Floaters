@@ -45,3 +45,8 @@ Versioning: [Semantic Versioning](https://semver.org/).
 - Dragon-nest placeholders sit on 5% of islands: a cobblestone rim
   around a sand bed. Eggs are added by the Bluedude Dragons
   integration in a later release.
+- Create Aeronautics integration: when the mod is installed, every
+  floater gets a pool of levitite blend on its top surface (diameter
+  scales with island radius) and a sparse scattering of pearlescent
+  levitite on the exposed underside — the in-world reason the island
+  floats. Skipped silently on packs without Aeronautics.
