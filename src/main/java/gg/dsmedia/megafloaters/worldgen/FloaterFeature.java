@@ -80,12 +80,24 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
             int base = Distributions.triangularInt(rng, cfg.minThickness(), cfg.maxThickness());
             thickness = Math.max(2, (int) Math.round(base * archetype.thicknessMult()));
         }
+        radius = clampToSafeRadius(radius);
 
         archetype.build(level, origin, radius, thickness, cfg.edgeChance(), palette, rng);
         ResourceLocation archetypeId = ResourceLocation.fromNamespaceAndPath(
                 MegaFloatersMod.MOD_ID, archetype.getSerializedName());
         return finalizeAfterBuild(level, gen, origin, cfg, archetypeId, radius, thickness,
                 palette, biome, archetype.placesTree(), rng);
+    }
+
+    /**
+     * MC's feature generation step only allows writes within origin chunk + 1 in
+     * each cardinal direction. Because origin can land anywhere inside its chunk,
+     * the safe extent in any direction is 16 blocks — any bigger risks the
+     * "Detected setBlock in a far chunk" error. Pond adds 2 beyond radius, so
+     * effective cap is 14. Structure-based generation (v0.2+) will lift this.
+     */
+    private static int clampToSafeRadius(int radius) {
+        return Math.min(radius, 14);
     }
 
     /**
@@ -118,6 +130,7 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
             int base = Distributions.triangularInt(rng, cfg.minThickness(), cfg.maxThickness());
             thickness = Math.max(2, (int) Math.round(base * builder.thicknessMult()));
         }
+        radius = clampToSafeRadius(radius);
 
         builder.build(level, origin, radius, thickness, cfg.edgeChance(), palette, rng);
         return finalizeAfterBuild(level, gen, origin, cfg, archetypeId, radius, thickness,
@@ -210,11 +223,19 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
                                    List<BlockPos> tops, VegetationSpec veg, int radius) {
         if (veg.trees().isEmpty() || veg.maxTrees() <= 0) return;
 
+        // Filter out rim positions so tree canopies don't spill off the island
+        // edge into a far chunk.
+        List<BlockPos> interior = new java.util.ArrayList<>(tops.size());
+        for (BlockPos top : tops) {
+            if (!SurfaceScanner.isRim(level, top)) interior.add(top);
+        }
+        if (interior.isEmpty()) return;
+
         int desired = Math.max(1, radius / 8);
         int numTrees = Math.min(desired, veg.maxTrees());
 
         for (int i = 0; i < numTrees; i++) {
-            BlockPos top = tops.get(rng.nextInt(tops.size()));
+            BlockPos top = interior.get(rng.nextInt(interior.size()));
             ResourceKey<ConfiguredFeature<?, ?>> treeKey = veg.trees().get(rng.nextInt(veg.trees().size()));
             Holder<ConfiguredFeature<?, ?>> tree = level.registryAccess()
                     .registryOrThrow(Registries.CONFIGURED_FEATURE)

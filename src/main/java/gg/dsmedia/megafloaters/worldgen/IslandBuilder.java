@@ -56,13 +56,15 @@ public final class IslandBuilder {
         }
     }
 
-    /** 3–5 small discs scattered within ±radius of `center`, each ~1/3 the base radius. */
+    /** 3–5 small discs scattered within ±radius/2 of `center`, each ~1/3 the base radius.
+     *  Spread is halved vs radius to keep the outermost sub-disc edge inside the 3x3-chunk
+     *  envelope that NeoForge's feature step allows us to write to without warnings. */
     public static void buildCluster(WorldGenLevel level, BlockPos center, int radius, int thickness,
                                     float edgeChance, SurfacePalette palette, RandomSource rng) {
         int subCount = 3 + rng.nextInt(3);
         int subRadius = Math.max(2, radius / 3);
         int subThickness = Math.max(2, thickness / 2);
-        int spread = Math.max(1, radius);
+        int spread = Math.max(1, radius / 2);
 
         for (int i = 0; i < subCount; i++) {
             int ox = rng.nextInt(spread * 2 + 1) - spread;

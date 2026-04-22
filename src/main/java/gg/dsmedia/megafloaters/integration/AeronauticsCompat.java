@@ -107,7 +107,11 @@ public final class AeronauticsCompat {
                                       float density, RandomSource rng) {
         if (!loaded) return;
 
-        int searchRadius = radius + 3;
+        // Use radius directly, not radius+3 — we've already been through the
+        // far-chunk cap and can't afford to overshoot horizontally. A few
+        // underside-adjacent column blocks may be missed at the very rim; the
+        // cosmetic effect is still clearly visible.
+        int searchRadius = radius;
         // Cones/spires extend below the main thickness; search a generous window.
         int searchBottom = origin.getY() - thickness * 3;
         int searchTop = origin.getY() - 1;

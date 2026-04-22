@@ -48,36 +48,10 @@
       ]
     },
     {
-      "rolls": 1,
+      "_comment": "Pack-themed drops temporarily removed — neoforge:mod_loaded is not a LootItemCondition in 1.21.1 and ConditionalOps doesn't apply at loot-entry decode depth. Re-add via LootModifyEvent.",
+      "rolls": 0,
       "entries": [
-        { "type": "minecraft:empty", "weight": 40 },
-        {
-          "type": "minecraft:item",
-          "name": "aeronautics:levitite_blend_bucket",
-          "weight": 10,
-          "functions": [
-            { "function": "minecraft:set_count", "count": { "min": 1, "max": 2 } }
-          ],
-          "conditions": [
-            { "condition": "neoforge:mod_loaded", "modid": "aeronautics" }
-          ]
-        },
-        {
-          "type": "minecraft:item",
-          "name": "create:precision_mechanism",
-          "weight": 10,
-          "conditions": [
-            { "condition": "neoforge:mod_loaded", "modid": "create" }
-          ]
-        },
-        {
-          "type": "minecraft:item",
-          "name": "bdd:terrible_terror_egg",
-          "weight": 5,
-          "conditions": [
-            { "condition": "neoforge:mod_loaded", "modid": "bdd" }
-          ]
-        }
+        { "type": "minecraft:empty", "weight": 1 }
       ]
     }
   ]
