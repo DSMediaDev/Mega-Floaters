@@ -2,6 +2,7 @@ package gg.dsmedia.megafloaters.worldgen;
 
 import java.util.List;
 
+import gg.dsmedia.megafloaters.ModAttachments;
 import gg.dsmedia.megafloaters.api.palette.SurfacePalette;
 import gg.dsmedia.megafloaters.api.palette.SurfacePaletteRegistry;
 import gg.dsmedia.megafloaters.api.palette.VegetationSpec;
@@ -12,6 +13,7 @@ import gg.dsmedia.megafloaters.integration.BddCompat;
 import gg.dsmedia.megafloaters.loot.MegaFloatersLootTables;
 import gg.dsmedia.megafloaters.structure.AncientRuin;
 import gg.dsmedia.megafloaters.structure.DragonNest;
+import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
@@ -79,7 +81,27 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
             AeronauticsCompat.embedUnderside(level, origin, radius, thickness, palette, 0.08f, rng);
         }
 
+        flagChunksNoHostiles(level, origin, searchRadius);
+
         return true;
+    }
+
+    /**
+     * Mark every chunk the island's XZ extent touches with the no_hostiles
+     * attachment so {@code SpawnSuppression} can suppress natural monster
+     * spawns there.
+     */
+    private static void flagChunksNoHostiles(WorldGenLevel level, BlockPos origin, int searchRadius) {
+        int minChunkX = (origin.getX() - searchRadius) >> 4;
+        int maxChunkX = (origin.getX() + searchRadius) >> 4;
+        int minChunkZ = (origin.getZ() - searchRadius) >> 4;
+        int maxChunkZ = (origin.getZ() + searchRadius) >> 4;
+        for (int cx = minChunkX; cx <= maxChunkX; cx++) {
+            for (int cz = minChunkZ; cz <= maxChunkZ; cz++) {
+                ((IAttachmentHolder) level.getChunk(cx, cz)).setData(
+                        ModAttachments.NO_HOSTILES, Boolean.TRUE);
+            }
+        }
     }
 
     private static void placeTrees(WorldGenLevel level, ChunkGenerator gen, RandomSource rng,

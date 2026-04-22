@@ -25,5 +25,6 @@ public final class ModRegistries {
     public static void register(IEventBus modEventBus) {
         PLACEMENT_MODIFIERS.register(modEventBus);
         FEATURES.register(modEventBus);
+        ModAttachments.register(modEventBus);
     }
 }

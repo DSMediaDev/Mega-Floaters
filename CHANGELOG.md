@@ -57,3 +57,7 @@ Versioning: [Semantic Versioning](https://semver.org/).
   deserts and badlands, speed stinger in taiga and old-growth forests,
   and terrible terror everywhere else. The dragon spawn buff lands in
   a later release once the island registry is in place.
+- Hostile mobs no longer spawn on floater islands. Passive and neutral
+  mobs still spawn normally, and player-placed spawners, spawn eggs,
+  commands, and every other non-natural source pass through
+  unaffected — so mob farms and triggered spawns keep working.

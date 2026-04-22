@@ -2,6 +2,7 @@ package gg.dsmedia.megafloaters;
 
 import com.mojang.logging.LogUtils;
 import gg.dsmedia.megafloaters.command.MegaFloatersCommand;
+import gg.dsmedia.megafloaters.event.SpawnSuppression;
 import gg.dsmedia.megafloaters.integration.AeronauticsCompat;
 import gg.dsmedia.megafloaters.integration.BddCompat;
 import net.neoforged.bus.api.IEventBus;
@@ -19,6 +20,7 @@ public class MegaFloatersMod {
         ModRegistries.register(modEventBus);
         modEventBus.addListener(this::onCommonSetup);
         NeoForge.EVENT_BUS.addListener(MegaFloatersCommand::onRegisterCommands);
+        NeoForge.EVENT_BUS.addListener(SpawnSuppression::onFinalizeSpawn);
         LOGGER.info("Mega Floaters initialising.");
     }
 
