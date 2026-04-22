@@ -2,6 +2,9 @@ package gg.dsmedia.megafloaters.worldgen;
 
 import java.util.List;
 
+import java.util.UUID;
+
+import gg.dsmedia.megafloaters.MegaFloatersMod;
 import gg.dsmedia.megafloaters.ModAttachments;
 import gg.dsmedia.megafloaters.api.palette.SurfacePalette;
 import gg.dsmedia.megafloaters.api.palette.SurfacePaletteRegistry;
@@ -11,8 +14,11 @@ import gg.dsmedia.megafloaters.archetype.FloaterArchetype;
 import gg.dsmedia.megafloaters.integration.AeronauticsCompat;
 import gg.dsmedia.megafloaters.integration.BddCompat;
 import gg.dsmedia.megafloaters.loot.MegaFloatersLootTables;
+import gg.dsmedia.megafloaters.registry.IslandRecord;
+import gg.dsmedia.megafloaters.registry.IslandRegistry;
 import gg.dsmedia.megafloaters.structure.AncientRuin;
 import gg.dsmedia.megafloaters.structure.DragonNest;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.attachment.IAttachmentHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -75,6 +81,10 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
 
         archetype.build(level, origin, radius, thickness, cfg.edgeChance(), palette, rng);
 
+        // Sub-feature tracking — what ended up on this island. Used both by the
+        // registry record below and as the "has_*" hints for /info etc.
+        boolean[] featureFlags = new boolean[] { false, false, false };  // ruin, nest, levitite
+
         // After the base shape is built, find the top-surface positions once and
         // reuse them for every sub-feature pass below.
         int searchRadius = radius + 3;
@@ -93,17 +103,41 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
 
         OrePlacer.scatter(level, gen, rng, origin, radius, thickness, palette, cfg.oreCountMultiplier());
 
-        maybeAddRuin(level, rng, topPositions, cfg.ruinChance());
-        maybeAddNest(level, rng, topPositions, cfg.nestChance(), biome);
+        featureFlags[0] = maybeAddRuin(level, rng, topPositions, cfg.ruinChance());
+        featureFlags[1] = maybeAddNest(level, rng, topPositions, cfg.nestChance(), biome);
 
         if (AeronauticsCompat.isActive()) {
             AeronauticsCompat.placePool(level, topPositions, radius, rng);
             AeronauticsCompat.embedUnderside(level, origin, radius, thickness, palette, 0.08f, rng);
+            featureFlags[2] = true;
         }
 
         flagChunksNoHostiles(level, origin, searchRadius);
+        recordIsland(level, origin, archetype, radius, thickness, biome, featureFlags);
 
         return true;
+    }
+
+    private static void recordIsland(WorldGenLevel level, BlockPos origin, FloaterArchetype archetype,
+                                     int radius, int thickness, Holder<Biome> biome,
+                                     boolean[] featureFlags) {
+        ResourceLocation archetypeId = ResourceLocation.fromNamespaceAndPath(
+                MegaFloatersMod.MOD_ID, archetype.getSerializedName());
+        ResourceLocation biomeId = biome.unwrapKey()
+                .map(k -> k.location())
+                .orElseGet(() -> ResourceLocation.fromNamespaceAndPath("minecraft", "plains"));
+        IslandRecord record = new IslandRecord(
+                UUID.randomUUID(),
+                archetypeId,
+                origin,
+                radius,
+                thickness,
+                biomeId,
+                featureFlags[0],
+                featureFlags[1],
+                featureFlags[2],
+                level.getLevel().getGameTime());
+        IslandRegistry.get(level.getLevel()).add(record);
     }
 
     /**
@@ -191,23 +225,25 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
         return null;
     }
 
-    private static void maybeAddRuin(WorldGenLevel level, RandomSource rng, List<BlockPos> tops,
-                                     float chance) {
-        if (chance <= 0.0f || rng.nextFloat() >= chance) return;
+    private static boolean maybeAddRuin(WorldGenLevel level, RandomSource rng, List<BlockPos> tops,
+                                        float chance) {
+        if (chance <= 0.0f || rng.nextFloat() >= chance) return false;
         BlockPos floor = pickInterior(level, tops, rng);
-        if (floor == null) return;
+        if (floor == null) return false;
         AncientRuin.place(level, floor, MegaFloatersLootTables.pickTier(rng), rng);
+        return true;
     }
 
-    private static void maybeAddNest(WorldGenLevel level, RandomSource rng, List<BlockPos> tops,
-                                     float chance, Holder<Biome> biome) {
-        if (chance <= 0.0f || rng.nextFloat() >= chance) return;
+    private static boolean maybeAddNest(WorldGenLevel level, RandomSource rng, List<BlockPos> tops,
+                                        float chance, Holder<Biome> biome) {
+        if (chance <= 0.0f || rng.nextFloat() >= chance) return false;
         BlockPos nestFloor = pickInterior(level, tops, rng);
-        if (nestFloor == null) return;
+        if (nestFloor == null) return false;
         DragonNest.place(level, nestFloor, rng);
         if (BddCompat.isActive()) {
             BddCompat.populateNest(level, nestFloor, biome, rng);
         }
+        return true;
     }
 
     private static void carvePond(WorldGenLevel level, BlockPos center) {

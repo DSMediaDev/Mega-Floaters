@@ -1,20 +1,21 @@
 package gg.dsmedia.megafloaters.command.sub;
 
+import java.util.Optional;
+
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import gg.dsmedia.megafloaters.ModAttachments;
+import gg.dsmedia.megafloaters.registry.IslandRecord;
+import gg.dsmedia.megafloaters.registry.IslandRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.neoforged.neoforge.attachment.IAttachmentHolder;
 
 /**
- * Reports whether the caller's chunk is a floater chunk. Once the island
- * registry lands this will include archetype, radius, biome, and subfeatures.
+ * Info about the nearest floater island to the caller (within 64 blocks),
+ * as tracked in the island registry.
  */
 public final class InfoCommand {
 
@@ -28,17 +29,28 @@ public final class InfoCommand {
         CommandSourceStack src = ctx.getSource();
         ServerLevel level = src.getLevel();
         BlockPos pos = BlockPos.containing(src.getPosition());
-        ChunkAccess chunk = level.getChunk(pos);
-        boolean flagged = ((IAttachmentHolder) chunk).getData(ModAttachments.NO_HOSTILES);
 
-        if (flagged) {
-            src.sendSuccess(() -> Component.literal(
-                    "This chunk is a floater chunk. Hostile spawns are suppressed.")
-                    .withStyle(ChatFormatting.GREEN), false);
-            return 1;
+        Optional<IslandRecord> maybe = IslandRegistry.get(level).getIslandAt(pos);
+        if (maybe.isEmpty()) {
+            src.sendSuccess(() -> Component.literal("No floater within 64 blocks.")
+                    .withStyle(ChatFormatting.GRAY), false);
+            return 0;
         }
-        src.sendSuccess(() -> Component.literal("No floater in this chunk.")
-                .withStyle(ChatFormatting.GRAY), false);
-        return 0;
+
+        IslandRecord r = maybe.get();
+        src.sendSuccess(() -> Component.literal(
+                r.archetype().getPath() + " r=" + r.radius() + " t=" + r.thickness()
+                        + " biome=" + r.biome().getPath()
+                        + " @ " + r.center().toShortString())
+                .withStyle(ChatFormatting.GREEN), false);
+        if (r.hasRuin() || r.hasNest() || r.hasLevitite()) {
+            StringBuilder features = new StringBuilder("  features:");
+            if (r.hasRuin())     features.append(" ruin");
+            if (r.hasNest())     features.append(" nest");
+            if (r.hasLevitite()) features.append(" levitite");
+            final String out = features.toString();
+            src.sendSuccess(() -> Component.literal(out).withStyle(ChatFormatting.GRAY), false);
+        }
+        return 1;
     }
 }

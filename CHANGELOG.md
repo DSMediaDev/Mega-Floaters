@@ -63,12 +63,20 @@ Versioning: [Semantic Versioning](https://semver.org/).
   unaffected — so mob farms and triggered spawns keep working.
 - `/megafloaters` commands for operators (permission level 2):
   - `spawn <archetype> [size]` — force-place an island at your feet.
-  - `list [radius]` — count floater chunks within a chunk radius
-    (default 16).
-  - `info` — report whether your current chunk is a floater chunk.
-  - `regen <chunks> confirm` — re-run the feature in every floater
-    chunk within range; destructive enough to require the explicit
+  - `list [radius]` — list every floater in a chunk radius (archetype,
+    radius, center), truncated to 10 entries per invocation.
+  - `info` — nearest-within-64-blocks island readout with archetype,
+    size, biome, and subfeature flags.
+  - `regen <chunks> confirm` — re-run the feature on every registered
+    floater within range; destructive enough to require the explicit
     `confirm` subnode.
   - `preview <archetype> [size]` — one-shot particle outline of what
     an island of that archetype would look like at your position.
   - Existing `reload` keeps its green confirmation message.
+- Persistent island registry: every generated floater is recorded in
+  a per-level SavedData file (archetype, radius, thickness, biome,
+  subfeature flags, center, game tick). Commands now query the
+  registry directly, and the store survives save/load.
+- Dragon spawn buff now live: when Bluedude Dragons is installed, a
+  dragon attempting to spawn naturally within 48 blocks of any
+  registered floater island has its spawn forced through.

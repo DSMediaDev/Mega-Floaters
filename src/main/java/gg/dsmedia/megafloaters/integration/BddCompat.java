@@ -96,6 +96,16 @@ public final class BddCompat {
     }
 
     /**
+     * Heuristic: any entity registered under the {@code bdd} namespace counts
+     * as a dragon for spawn-buff purposes. Avoids binding to BDD's (alpha)
+     * entity classes, which have changed between releases.
+     */
+    public static boolean isDragonEntity(net.minecraft.world.entity.Entity entity) {
+        net.minecraft.resources.ResourceLocation key = net.minecraft.world.entity.EntityType.getKey(entity.getType());
+        return loaded && MOD_ID.equals(key.getNamespace());
+    }
+
+    /**
      * Pick a dragon species appropriate to the given biome. Tag checks first,
      * with resource-key path fallbacks for biomes that lack clean tags.
      */
