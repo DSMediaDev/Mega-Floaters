@@ -2,9 +2,11 @@ package gg.dsmedia.megafloaters;
 
 import com.mojang.logging.LogUtils;
 import gg.dsmedia.megafloaters.command.MegaFloatersCommand;
+import gg.dsmedia.megafloaters.event.DiscoveryTracker;
 import gg.dsmedia.megafloaters.event.SpawnSuppression;
 import gg.dsmedia.megafloaters.integration.AeronauticsCompat;
 import gg.dsmedia.megafloaters.integration.BddCompat;
+import gg.dsmedia.megafloaters.integration.FtbQuestsCompat;
 import gg.dsmedia.megafloaters.integration.KubeJSCompat;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -22,6 +24,7 @@ public class MegaFloatersMod {
         modEventBus.addListener(this::onCommonSetup);
         NeoForge.EVENT_BUS.addListener(MegaFloatersCommand::onRegisterCommands);
         NeoForge.EVENT_BUS.addListener(SpawnSuppression::onFinalizeSpawn);
+        NeoForge.EVENT_BUS.addListener(DiscoveryTracker::onPlayerTick);
         LOGGER.info("Mega Floaters initialising.");
     }
 
@@ -31,5 +34,6 @@ public class MegaFloatersMod {
         AeronauticsCompat.init();
         BddCompat.init();
         KubeJSCompat.init();
+        FtbQuestsCompat.init();
     }
 }

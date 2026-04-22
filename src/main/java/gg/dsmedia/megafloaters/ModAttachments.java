@@ -1,21 +1,27 @@
 package gg.dsmedia.megafloaters;
 
+import java.util.ArrayList;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.core.UUIDUtil;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 /**
- * Data attachments attached to level chunks.
+ * Data attachments used by the mod.
  *
- * <p>{@link #NO_HOSTILES} is a per-chunk boolean set by {@code FloaterFeature}
- * when an island is placed. {@code SpawnSuppression} checks it at
- * {@code FinalizeSpawnEvent} time and cancels natural hostile spawns inside
- * flagged chunks — passive mobs and player-triggered spawns (spawners, eggs,
- * commands) are unaffected.
+ * <ul>
+ *   <li>{@link #NO_HOSTILES} on level chunks — set by {@code FloaterFeature}
+ *       when an island is placed; consumed by {@code SpawnSuppression} to
+ *       cancel natural hostile spawns there.</li>
+ *   <li>{@link #DISCOVERED_ISLANDS} on players — a persistent list of
+ *       already-seen island UUIDs, used by the discovery tracker to fire
+ *       {@code IslandDiscoveredEvent} exactly once per island per player.</li>
+ * </ul>
  */
 public final class ModAttachments {
 
@@ -26,6 +32,13 @@ public final class ModAttachments {
             ATTACHMENT_TYPES.register("no_hostiles",
                     () -> AttachmentType.builder(() -> Boolean.FALSE)
                             .serialize(Codec.BOOL)
+                            .build());
+
+    public static final Supplier<AttachmentType<java.util.List<UUID>>> DISCOVERED_ISLANDS =
+            ATTACHMENT_TYPES.register("discovered_islands",
+                    () -> AttachmentType.<java.util.List<UUID>>builder(h -> new ArrayList<>())
+                            .serialize(UUIDUtil.CODEC.listOf())
+                            .copyOnDeath()
                             .build());
 
     private ModAttachments() {}

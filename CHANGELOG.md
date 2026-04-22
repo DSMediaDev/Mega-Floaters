@@ -91,3 +91,10 @@ Versioning: [Semantic Versioning](https://semver.org/).
   `IslandPlacedEvent` via `NeoForge.onEvent(...)` and call
   `MegaFloatersAPI` static methods directly. README includes example
   snippets with defensive Rhino patterns.
+- First-discovery event: `IslandDiscoveredEvent` fires on
+  `NeoForge.EVENT_BUS` the first time a player comes within 32 blocks
+  of an island they've never been near before. Discovery lists are
+  persisted on the player and survive death/save/load, so quest tasks
+  that listen for this event fire exactly once per island per player.
+  FTB Quests and any mod with a NeoForge-event task type can use this
+  directly; bundled quests are not part of the mod.
