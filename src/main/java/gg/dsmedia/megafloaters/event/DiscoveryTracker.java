@@ -39,17 +39,31 @@ public final class DiscoveryTracker {
         List<IslandRecord> nearby = IslandRegistry.get(level).getIslandsNear(pos, DISCOVERY_RADIUS);
         if (nearby.isEmpty()) return;
 
-        List<UUID> discovered = ((IAttachmentHolder) player).getData(ModAttachments.DISCOVERED_ISLANDS);
-        List<UUID> encounteredNests = ((IAttachmentHolder) player).getData(ModAttachments.ENCOUNTERED_NESTS);
+        // The attachment codec deserializes lists as immutable; we need mutable
+        // copies we can extend, then write back via setData.
+        IAttachmentHolder holder = (IAttachmentHolder) player;
+        java.util.ArrayList<UUID> discovered =
+                new java.util.ArrayList<>(holder.getData(ModAttachments.DISCOVERED_ISLANDS));
+        java.util.ArrayList<UUID> encounteredNests =
+                new java.util.ArrayList<>(holder.getData(ModAttachments.ENCOUNTERED_NESTS));
+        boolean changed = false;
+
         for (IslandRecord r : nearby) {
             if (!discovered.contains(r.id())) {
                 discovered.add(r.id());
+                changed = true;
                 NeoForge.EVENT_BUS.post(new IslandDiscoveredEvent(player, r));
             }
             if (r.hasNest() && !encounteredNests.contains(r.id())) {
                 encounteredNests.add(r.id());
+                changed = true;
                 NeoForge.EVENT_BUS.post(new NestEncounteredEvent(player, r));
             }
+        }
+
+        if (changed) {
+            holder.setData(ModAttachments.DISCOVERED_ISLANDS, discovered);
+            holder.setData(ModAttachments.ENCOUNTERED_NESTS, encounteredNests);
         }
     }
 }

@@ -7,6 +7,15 @@ Versioning: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-04-22
+
+### Fixed
+- **Critical**: `DiscoveryTracker.onPlayerTick` crashed every player
+  tick post-login after v0.3.0 with `UnsupportedOperationException` —
+  the attachment codec returns immutable lists, and I was calling
+  `.add()` on them directly. Fixed by copying into `ArrayList` and
+  writing back via `setData`.
+
 ## [0.3.0] - 2026-04-22
 
 ### Removed
