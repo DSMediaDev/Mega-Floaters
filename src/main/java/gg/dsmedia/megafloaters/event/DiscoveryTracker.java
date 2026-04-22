@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import gg.dsmedia.megafloaters.ModAttachments;
 import gg.dsmedia.megafloaters.api.IslandDiscoveredEvent;
+import gg.dsmedia.megafloaters.api.NestEncounteredEvent;
 import gg.dsmedia.megafloaters.registry.IslandRecord;
 import gg.dsmedia.megafloaters.registry.IslandRegistry;
 import net.minecraft.core.BlockPos;
@@ -39,10 +40,16 @@ public final class DiscoveryTracker {
         if (nearby.isEmpty()) return;
 
         List<UUID> discovered = ((IAttachmentHolder) player).getData(ModAttachments.DISCOVERED_ISLANDS);
+        List<UUID> encounteredNests = ((IAttachmentHolder) player).getData(ModAttachments.ENCOUNTERED_NESTS);
         for (IslandRecord r : nearby) {
-            if (discovered.contains(r.id())) continue;
-            discovered.add(r.id());
-            NeoForge.EVENT_BUS.post(new IslandDiscoveredEvent(player, r));
+            if (!discovered.contains(r.id())) {
+                discovered.add(r.id());
+                NeoForge.EVENT_BUS.post(new IslandDiscoveredEvent(player, r));
+            }
+            if (r.hasNest() && !encounteredNests.contains(r.id())) {
+                encounteredNests.add(r.id());
+                NeoForge.EVENT_BUS.post(new NestEncounteredEvent(player, r));
+            }
         }
     }
 }

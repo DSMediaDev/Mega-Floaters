@@ -7,6 +7,20 @@ Versioning: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- Three more observation events complete the FTB Quests integration:
+  - `RuinOpenedEvent` — posted on `NeoForge.EVENT_BUS` when a player
+    right-clicks an unopened ruin chest. Fires exactly once per chest
+    (opening consumes the loot-table reference), and carries the tier
+    that was on the chest (iron / diamond / end).
+  - `LevititeHarvestedEvent` — posted when a player right-clicks a
+    levitite_blend block with an empty bucket near a known floater
+    island. Requires Create Aeronautics to be installed.
+  - `NestEncounteredEvent` — fires alongside `IslandDiscoveredEvent`
+    the first time a player approaches a floater with a dragon nest,
+    tracked separately on the player so nest-specific quests can fire
+    without racing the discovery quest.
+
 ## [0.1.0] - 2026-04-22
 
 First release.

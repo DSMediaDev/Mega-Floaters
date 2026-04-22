@@ -41,6 +41,13 @@ public final class ModAttachments {
                             .copyOnDeath()
                             .build());
 
+    public static final Supplier<AttachmentType<java.util.List<UUID>>> ENCOUNTERED_NESTS =
+            ATTACHMENT_TYPES.register("encountered_nests",
+                    () -> AttachmentType.<java.util.List<UUID>>builder(h -> new ArrayList<>())
+                            .serialize(UUIDUtil.CODEC.listOf())
+                            .copyOnDeath()
+                            .build());
+
     private ModAttachments() {}
 
     public static void register(IEventBus modEventBus) {

@@ -15,6 +15,13 @@ public final class MegaFloatersLootTables {
 
     private MegaFloatersLootTables() {}
 
+    /** True if the given loot table key is one of the three ruin tiers. */
+    public static boolean isRuinTable(ResourceKey<LootTable> key) {
+        return key != null
+                && (key == RUIN_IRON || key == RUIN_DIAMOND || key == RUIN_END
+                        || key.equals(RUIN_IRON) || key.equals(RUIN_DIAMOND) || key.equals(RUIN_END));
+    }
+
     /** Weighted tier roll per the plan: iron 60, diamond 30, end 10. */
     public static ResourceKey<LootTable> pickTier(RandomSource rng) {
         float r = rng.nextFloat();

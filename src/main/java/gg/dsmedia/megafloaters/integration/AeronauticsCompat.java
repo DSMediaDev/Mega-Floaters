@@ -67,6 +67,11 @@ public final class AeronauticsCompat {
         return loaded;
     }
 
+    /** True if {@code state}'s block is the resolved levitite_blend fluid block. */
+    public static boolean isLevititeBlock(net.minecraft.world.level.block.state.BlockState state) {
+        return loaded && state.is(levititeBlend.getBlock());
+    }
+
     /**
      * Carve a circular pool of levitite_blend on the island's top surface. The
      * caller supplies the already-computed top-surface list so we don't rescan.

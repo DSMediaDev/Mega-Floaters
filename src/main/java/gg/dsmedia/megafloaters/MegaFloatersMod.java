@@ -3,6 +3,7 @@ package gg.dsmedia.megafloaters;
 import com.mojang.logging.LogUtils;
 import gg.dsmedia.megafloaters.command.MegaFloatersCommand;
 import gg.dsmedia.megafloaters.event.DiscoveryTracker;
+import gg.dsmedia.megafloaters.event.ObservationHooks;
 import gg.dsmedia.megafloaters.event.SpawnSuppression;
 import gg.dsmedia.megafloaters.integration.AeronauticsCompat;
 import gg.dsmedia.megafloaters.integration.BddCompat;
@@ -25,6 +26,7 @@ public class MegaFloatersMod {
         NeoForge.EVENT_BUS.addListener(MegaFloatersCommand::onRegisterCommands);
         NeoForge.EVENT_BUS.addListener(SpawnSuppression::onFinalizeSpawn);
         NeoForge.EVENT_BUS.addListener(DiscoveryTracker::onPlayerTick);
+        NeoForge.EVENT_BUS.addListener(ObservationHooks::onRightClickBlock);
         LOGGER.info("Mega Floaters initialising.");
     }
 
