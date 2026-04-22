@@ -38,20 +38,40 @@ public class FloaterFeature extends Feature<FloaterFeatureConfig> {
 
     @Override
     public boolean place(FeaturePlaceContext<FloaterFeatureConfig> ctx) {
-        WorldGenLevel level = ctx.level();
-        BlockPos origin = ctx.origin();
-        RandomSource rng = ctx.random();
-        FloaterFeatureConfig cfg = ctx.config();
-        ChunkGenerator gen = ctx.chunkGenerator();
+        return generate(ctx.level(), ctx.chunkGenerator(), ctx.origin(), ctx.config(),
+                null, 0, 0, ctx.random());
+    }
 
+    /**
+     * Run the full island-placement pipeline. Public so the {@code /megafloaters spawn}
+     * command (and future scripting hooks) can drive it directly.
+     *
+     * @param archetypeOverride If non-null, use this archetype instead of biome-weighted selection.
+     * @param radiusOverride    If &gt; 0, use this radius instead of rolling from the config.
+     * @param thicknessOverride If &gt; 0, use this thickness instead of rolling from the config.
+     */
+    public static boolean generate(WorldGenLevel level, ChunkGenerator gen, BlockPos origin,
+                                   FloaterFeatureConfig cfg, FloaterArchetype archetypeOverride,
+                                   int radiusOverride, int thicknessOverride, RandomSource rng) {
         Holder<Biome> biome = level.getBiome(origin);
-        FloaterArchetype archetype = BiomeArchetypeWeights.select(biome, rng);
+        FloaterArchetype archetype = archetypeOverride != null
+                ? archetypeOverride
+                : BiomeArchetypeWeights.select(biome, rng);
         SurfacePalette palette = SurfacePaletteRegistry.select(biome, archetype);
 
-        int baseRadius = Distributions.triangularInt(rng, cfg.minRadius(), cfg.maxRadius());
-        int baseThickness = Distributions.triangularInt(rng, cfg.minThickness(), cfg.maxThickness());
-        int radius = Math.max(2, (int) Math.round(baseRadius * archetype.radiusMult()));
-        int thickness = Math.max(2, (int) Math.round(baseThickness * archetype.thicknessMult()));
+        int radius, thickness;
+        if (radiusOverride > 0) {
+            radius = radiusOverride;
+        } else {
+            int base = Distributions.triangularInt(rng, cfg.minRadius(), cfg.maxRadius());
+            radius = Math.max(2, (int) Math.round(base * archetype.radiusMult()));
+        }
+        if (thicknessOverride > 0) {
+            thickness = thicknessOverride;
+        } else {
+            int base = Distributions.triangularInt(rng, cfg.minThickness(), cfg.maxThickness());
+            thickness = Math.max(2, (int) Math.round(base * archetype.thicknessMult()));
+        }
 
         archetype.build(level, origin, radius, thickness, cfg.edgeChance(), palette, rng);
 
