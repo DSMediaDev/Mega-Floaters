@@ -1,0 +1,23 @@
+{
+  "feature": "megafloaters:floater",
+  "placement": [
+    {
+      "type": "megafloaters:archipelago",
+      "region_size": 32,
+      "archipelago_chance": 0.4,
+      "void_chance": 0.2,
+      "base_rarity": 5,
+      "archipelago_multiplier": 3.0
+    },
+    { "type": "minecraft:in_square" },
+    { "type": "minecraft:height_range",
+      "height": {
+        "type": "minecraft:trapezoid",
+        "min_inclusive": { "absolute": 60 },
+        "max_inclusive": { "absolute": 140 },
+        "plateau": 16
+      }
+    },
+    { "type": "minecraft:biome" }
+  ]
+}

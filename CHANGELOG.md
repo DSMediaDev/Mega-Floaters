@@ -8,6 +8,12 @@ Versioning: [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- End-dimension support. The end palette, end biome weights, and
+  end archetype table have been in the mod since v0.1.0 but the end
+  biome modifier was missing — so floaters never actually spawned in
+  The End. Now they do, with a separate placed feature that runs at
+  y=60-140 (trapezoid plateau 16) and reuses the same configured
+  feature as the overworld.
 - External archetype dispatch. `MegaFloatersAPI.registerArchetype(id,
   builder)` and `getArchetype(id)` are now functional — registered
   archetypes can be spawned via `/megafloaters spawn <namespace:path>`
