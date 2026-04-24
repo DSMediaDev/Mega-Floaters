@@ -1,0 +1,7 @@
+{
+  "type": "megafloaters:mega_island",
+  "biomes": "#megafloaters:has_mega_island",
+  "step": "raw_generation",
+  "spawn_overrides": {},
+  "terrain_adaptation": "none"
+}
