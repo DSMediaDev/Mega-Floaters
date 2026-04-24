@@ -7,6 +7,15 @@ Versioning: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- **Spire and cone islands no longer have flat bottoms.** Spires now
+  taper from full body width down to half-width over the bottom third
+  of their height, matching the taper convention already used by mesas
+  and clusters. Cone islands lost the 1-block ring ledge that used to
+  sit at the disc-to-cone seam — the underside now reads as one
+  continuous taper from disc bottom to point. Every island archetype
+  has a properly tapered underside now.
+
 ## [0.4.2] - 2026-04-22
 
 ### Fixed

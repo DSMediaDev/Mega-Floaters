@@ -57,7 +57,9 @@ public final class IslandBuilder {
     public static void buildCone(WorldGenLevel level, BlockPos center, int radius, int thickness,
                                  float edgeChance, SurfacePalette palette, RandomSource rng) {
         // Cone builds a flat-bottomed disc first, then adds its own stone taper below.
-        // Taper depth 0 keeps the disc bottom flat so the stone cone attaches cleanly.
+        // The cone's first sub-layer matches the disc's full radius so there's no
+        // 1-block ring ledge between the two — the underside reads as one continuous
+        // taper from disc bottom to point.
         buildDisc(level, center, radius, thickness, edgeChance, 0, palette, rng);
 
         int taperDepth = Math.max(4, radius * 2);
@@ -66,7 +68,7 @@ public final class IslandBuilder {
         BlockState core = palette.coreBlock();
 
         for (int dy = 1; dy <= taperDepth; dy++) {
-            int r = (int) (radius * (1.0 - (double) dy / taperDepth));
+            int r = (int) (radius * (1.0 - (double) (dy - 1) / taperDepth));
             if (r <= 0) break;
             int rSq = r * r;
             int y = bottomY - dy;
@@ -105,17 +107,31 @@ public final class IslandBuilder {
         buildDisc(level, center, radius, thickness, 1.0f, taperDepth, palette, rng);
     }
 
-    /** Tall narrow cylinder with a slightly wider top-layer cap. */
+    /** Tall narrow body with a slightly wider top-layer cap and a tapered base. */
     public static void buildSpire(WorldGenLevel level, BlockPos center, int radius, int thickness,
                                   float edgeChance, SurfacePalette palette, RandomSource rng) {
         int r = Math.max(2, radius);
         int rSq = r * r;
         BlockPos.MutableBlockPos mut = new BlockPos.MutableBlockPos();
 
+        // Bottom 1/3 of layers narrow from full radius down to TAPER_MIN_FRACTION
+        // of full radius at the very base, matching the same taper convention used
+        // by mesa and tapered discs. Spires were the last archetype with a fully
+        // flat bottom; this aligns them with the rest.
+        int bottomTaperDepth = Math.max(2, thickness / 3);
+
         for (int dy = 0; dy < thickness; dy++) {
-            for (int dx = -r; dx <= r; dx++) {
-                for (int dz = -r; dz <= r; dz++) {
-                    if (dx * dx + dz * dz > rSq) continue;
+            int fromBottom = thickness - 1 - dy;
+            int currentR = r;
+            if (fromBottom < bottomTaperDepth) {
+                double t = (double) fromBottom / bottomTaperDepth;
+                currentR = Math.max(1, (int) Math.round(r * (TAPER_MIN_FRACTION
+                        + (1.0 - TAPER_MIN_FRACTION) * t)));
+            }
+            int currentRSq = currentR * currentR;
+            for (int dx = -currentR; dx <= currentR; dx++) {
+                for (int dz = -currentR; dz <= currentR; dz++) {
+                    if (dx * dx + dz * dz > currentRSq) continue;
                     mut.set(center.getX() + dx, center.getY() - dy, center.getZ() + dz);
                     level.setBlock(mut, layerBlock(palette, dy, thickness), 2);
                 }
