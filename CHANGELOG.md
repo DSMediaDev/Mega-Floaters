@@ -7,6 +7,16 @@ Versioning: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- **Mega islands stopped looking like WorldEdit primitives.** Outer
+  rims, top surfaces, and (where applicable) inner rings, crater
+  lips, and horseshoe wedge cuts are all perturbed by deterministic
+  2D value noise. Edges roll ±4 blocks; the top surface roll is ±2
+  blocks. Adjacent chunk pieces sample the same noise field so no
+  seams show up at chunk boundaries. Archipelago shapes also got a
+  bell-curve blend between overlapping sub-mesas — joins now read
+  as smooth saddles instead of step-cut spheres.
+
 ### Added
 - **Mega islands (Phase A.2 — geometry only, no surface features yet).**
   A new structure-based generator places one rare giant island per
