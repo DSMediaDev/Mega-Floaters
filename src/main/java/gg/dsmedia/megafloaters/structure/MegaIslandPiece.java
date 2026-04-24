@@ -55,7 +55,15 @@ public class MegaIslandPiece extends StructurePiece {
                             RandomSource rng, BoundingBox writeBounds, ChunkPos chunkPos,
                             BlockPos pos) {
         MegaIslandParams params = MegaIslandParams.fromSeed(seed, anchor);
-        Holder<Biome> biome = level.getBiome(params.center());
+        // Sample biome at THIS piece's chunk, not the island center. Querying a
+        // far-away column throws "Requested chunk unavailable" (WorldGenRegion only
+        // exposes chunks near the one being generated) and aborts generation —
+        // which manifests as the island's outer chunks failing to load. Sampling
+        // locally also gives mega islands that straddle a biome boundary a natural
+        // palette transition.
+        BlockPos biomeProbe = new BlockPos(chunkPos.getMiddleBlockX(),
+                params.center().getY(), chunkPos.getMiddleBlockZ());
+        Holder<Biome> biome = level.getBiome(biomeProbe);
         SurfacePalette palette = SurfacePaletteRegistry.select(
                 biome, params.shape().getSerializedName());
 
