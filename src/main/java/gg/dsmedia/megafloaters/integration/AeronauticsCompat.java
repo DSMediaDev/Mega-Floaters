@@ -72,6 +72,16 @@ public final class AeronauticsCompat {
         return loaded && state.is(levititeBlend.getBlock());
     }
 
+    /** Resolved {@code aeronautics:pearlescent_levitite} block state, or null if mod absent. */
+    public static BlockState pearlescentLevitite() {
+        return loaded ? pearlescentLevitite : null;
+    }
+
+    /** Resolved {@code aeronautics:levitite_blend} block state, or null if mod absent. */
+    public static BlockState levititeBlend() {
+        return loaded ? levititeBlend : null;
+    }
+
     /**
      * Carve a circular pool of levitite_blend on the island's top surface. The
      * caller supplies the already-computed top-surface list so we don't rescan.

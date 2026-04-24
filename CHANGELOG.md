@@ -7,7 +7,45 @@ Versioning: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **Overworld-style layering on mega islands.** The exterior is no
+  longer a single block of stone. Cores now carry the familiar
+  stratigraphy: top (grass/sand/etc) → 3 layers of sub-surface
+  (dirt/sandstone) → stone core with ~18% granite/diorite/andesite
+  speckles → deepslate transition for the bottom eight layers of
+  thick cores → underside. Ores scatter through the core at roughly
+  2× overworld density (coal, iron, copper, redstone, gold, lapis,
+  diamond — each with the right Y-band so diamonds don't appear 4
+  blocks from the grass). Deepslate variants are used inside the
+  deepslate zone. Non-stone cores (badlands terracotta, end stone)
+  keep their palette core unchanged for now.
+- **Pearlescent levitite sprinkle.** Where Create Aeronautics is
+  installed, mega islands carry a scattering of pearlescent_levitite
+  blocks embedded in their stone cores — a cheap visual "this is why
+  it floats" reward for strip-mining.
+- **Hanging vines on grass-topped mega islands.** Rim columns in
+  jungle/forest/plains/swamp palettes grow 2–6 blocks of vanilla
+  vines hanging beneath the island. Desert, badlands, snow, and end
+  palettes stay bare.
+- **Crater mega islands fill with Levitite Blend.** The newly-carved
+  basin on CRATER-shape mega islands floods with aeronautics:levitite_blend
+  from the basin surface up to rim level. This is now the **only**
+  natural source of Levitite Blend in the pack — the old
+  `megapack:levitite_pool` (underground) and `levitite_sky_formation`
+  (on Rob's Floating Islands) features will be removed from the
+  DS: Skybound modpack in the next pack release. Expect to fly, not dig.
+
 ### Changed
+- **CRATER shape weight bumped** (1.5 → 2.2) so the levitite-bearing
+  crater variant accounts for roughly one in four mega islands instead
+  of one in six, now that it's the sole natural source of Levitite
+  Blend.
+- **Smaller satellite islands spawn less often.** The small-island
+  placement rarity moved from 1-in-15 chunks to 1-in-30, cutting
+  overall satellite density roughly in half. Mega islands are now
+  the intended primary landmark; satellites are incidental cover
+  around them. A proper anchor-and-satellite clustering pass (the
+  "one MASSIVE island + smaller ones close by" layout) still to come.
 - **Mega islands stopped looking like WorldEdit primitives.** Outer
   rims, top surfaces, and (where applicable) inner rings, crater
   lips, and horseshoe wedge cuts are all perturbed by deterministic

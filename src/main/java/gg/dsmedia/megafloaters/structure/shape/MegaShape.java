@@ -63,7 +63,7 @@ public enum MegaShape implements StringRepresentable {
      * all carry noise; the basin floor stays smooth so a sub-feature pass can
      * flood it cleanly.
      */
-    CRATER("crater", 1.5f) {
+    CRATER("crater", 2.2f) {
         @Override public int xzExtent(int radius) { return radius + EDGE_AMP; }
         @Override public ColumnSpec columnAt(MegaIslandParams p, int wx, int wz) {
             int dx = wx - p.center().getX();
