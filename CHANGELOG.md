@@ -7,6 +7,34 @@ Versioning: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **Mega islands (Phase A.2 — geometry only, no surface features yet).**
+  A new structure-based generator places one rare giant island per
+  ~32×32 chunk region. Mega islands roll a radius of 60–100 blocks
+  and a thickness of 28–56 blocks — roughly 5–10× the size of the
+  existing satellite islands. Six brand-new shapes ship with this
+  release, none of them perfectly round:
+  - **Plateau** — three concentric tiers stepping down toward the
+    rim, like a layered Avatar mountain.
+  - **Crater** — disc with a central depression carved into the top
+    (basin gets flooded once Phase A.3 lands its sub-feature pass).
+  - **Archipelago** — three to seven large sub-mesas at staggered
+    altitudes inside a single footprint, reading as a chain of
+    overlapping terraces.
+  - **Horseshoe** — C-shape ring with one quadrant cut open; the
+    opening direction is random per island.
+  - **Ridge** — long, narrow island with a 3:1 length-to-width
+    ratio, randomly rotated about its center. Stretches across far
+    more chunks than its width suggests.
+  - **Atoll** — outer ring with a shallow basin in the middle; A.3
+    will fill the basin with water.
+  Vegetation, ponds, ores, and ruins land in the next update — for
+  now mega islands are bare terrain with biome-matched surface
+  blocks. Hostile-mob suppression and registry integration also
+  arrive in subsequent updates, so for v0.5.0-alpha purposes treat
+  them as a "go look at the geometry" milestone, not a finished
+  feature.
+
 ### Changed
 - **Spire and cone islands no longer have flat bottoms.** Spires now
   taper from full body width down to half-width over the bottom third
