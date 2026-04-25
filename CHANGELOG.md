@@ -7,6 +7,44 @@ Versioning: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **Vegetation on mega islands.** Every piece of a mega island now
+  runs the biome's full vegetation pass — ground cover (short grass,
+  ferns, dead bushes, flowers) scatters at palette density across all
+  solid top-surface positions; trees are attempted up to the palette's
+  `maxTrees` count (capped at 3) per chunk, so a forest mega island
+  fills in with oaks and birch while desert and badlands stay bare.
+- **Ponds on mega islands.** Biomes eligible for water features
+  (grass, forest, taiga, mangrove, jungle) have an 85% chance of
+  spawning a circular pond (radius ≈ island radius ÷ 12) carved into
+  the top surface. For a radius-80 island the pond is ~6 blocks wide
+  — large enough to read as a lake, small enough not to dominate.
+- **Ancient ruins on mega islands.** 10% of mega islands (regardless
+  of biome) spawn a crumbling cobblestone ruin with a loot chest,
+  placed on an interior top-surface position ~65% of the island's
+  radius from its centre.
+- **Dragon nests on mega islands.** 15% of mega islands spawn a
+  cobblestone-rimmed sand nest ~65% of the island's radius from its
+  centre, in a different direction from any ruin on the same island.
+  BDD eggs populate the nest as normal when Bluedude Dragons is
+  loaded.
+- **Mega islands registered in IslandRegistry (A.4).** The anchor
+  chunk's piece writes one `IslandRecord` per island on first
+  generation. The record's UUID is derived from the island seed so it
+  is stable across world saves/reloads — players won't rediscover the
+  same island twice. Archetype IDs follow the pattern
+  `megafloaters:mega_<shape>` (e.g. `mega_crater`, `mega_plateau`).
+- **Hostile-mob suppression on mega islands (A.4).** Every piece flags
+  its own chunk with the `no_hostiles` attachment during postProcess,
+  so natural monster spawns are cancelled across the full mega-island
+  footprint the same way they are on satellite islands.
+- **Discovery fires at the rim for mega islands.** `DiscoveryTracker`
+  previously triggered at a fixed 32-block radius from the island
+  centre. For mega islands (radius 60–100) that required the player
+  to walk deep into the interior. Discovery radius is now
+  `max(32, island.radius())` per island, so approaching any mega
+  island's rim fires `IslandDiscoveredEvent` immediately.
+
 ### Fixed
 - **Hanging vines now hang vertically and connect.** The previous
   pass placed each vine with the `up` face attached, which renders

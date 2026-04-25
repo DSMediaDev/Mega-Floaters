@@ -19,14 +19,19 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
  * Fires {@link IslandDiscoveredEvent} the first time a player enters
  * discovery range of an island they've never been near before.
  *
- * <p>Discovery range: 32 blocks from the island's center. The per-player
- * discovered-list is persisted via the {@code DISCOVERED_ISLANDS} attachment
- * and survives death and save/load.
+ * <p>Discovery range: {@code max(32, island.radius())} blocks from the island's
+ * center. For small satellite islands this stays at 32 blocks; for mega islands
+ * it scales to the island's radius so the event fires when the player first
+ * reaches the rim rather than requiring them to walk to the center.
  */
 public final class DiscoveryTracker {
 
-    private static final int DISCOVERY_RADIUS = 32;
+    private static final int MIN_DISCOVERY_RADIUS = 32;
     private static final int CHECK_INTERVAL_TICKS = 20;
+
+    // Query radius must cover the largest possible per-island discovery radius.
+    // MegaIslandParams.MAX_RADIUS = 100; add a small margin.
+    private static final int QUERY_RADIUS = 128;
 
     private DiscoveryTracker() {}
 
@@ -36,11 +41,9 @@ public final class DiscoveryTracker {
 
         ServerLevel level = player.serverLevel();
         BlockPos pos = player.blockPosition();
-        List<IslandRecord> nearby = IslandRegistry.get(level).getIslandsNear(pos, DISCOVERY_RADIUS);
+        List<IslandRecord> nearby = IslandRegistry.get(level).getIslandsNear(pos, QUERY_RADIUS);
         if (nearby.isEmpty()) return;
 
-        // The attachment codec deserializes lists as immutable; we need mutable
-        // copies we can extend, then write back via setData.
         IAttachmentHolder holder = (IAttachmentHolder) player;
         java.util.ArrayList<UUID> discovered =
                 new java.util.ArrayList<>(holder.getData(ModAttachments.DISCOVERED_ISLANDS));
@@ -49,6 +52,10 @@ public final class DiscoveryTracker {
         boolean changed = false;
 
         for (IslandRecord r : nearby) {
+            // Per-island threshold: mega islands fire at rim approach, small ones at 32 blocks.
+            int discoveryRadius = Math.max(MIN_DISCOVERY_RADIUS, r.radius());
+            if (pos.distSqr(r.center()) > (long) discoveryRadius * discoveryRadius) continue;
+
             if (!discovered.contains(r.id())) {
                 discovered.add(r.id());
                 changed = true;
