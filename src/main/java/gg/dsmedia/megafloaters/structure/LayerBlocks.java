@@ -60,11 +60,17 @@ public final class LayerBlocks {
      * @param dyFromTop       Layer distance from the column's top (0 = top block).
      * @param columnThickness Total number of layers in this column.
      * @param surface         Whether the column is a solid top or a basin floor.
+     * @param exposedToAir    True when at least one cardinal neighbour at this
+     *                        Y is air (rim or vertical step). Suppresses ores
+     *                        so they don't appear visible from outside the
+     *                        island; stone-variant texture and pearlescent
+     *                        scatter still apply.
      */
     public static BlockState pick(long seed, SurfacePalette palette,
                                   int wx, int wy, int wz,
                                   int dyFromTop, int columnThickness,
-                                  ColumnSpec.Surface surface) {
+                                  ColumnSpec.Surface surface,
+                                  boolean exposedToAir) {
         int dyFromBottom = columnThickness - 1 - dyFromTop;
 
         // Underside always wins so the island bottom reads as one continuous skin.
@@ -89,7 +95,7 @@ public final class LayerBlocks {
 
         float oreRoll  = hash3D(seed ^ 0xA1L, wx, wy, wz);
         BlockState ore = pickOre(oreRoll, dyFromTop, deep);
-        if (ore != null) return ore;
+        if (ore != null && !exposedToAir) return ore;
 
         // Pearlescent sprinkle — flagged "why it floats" in the lore, cheaply
         // visible when strip-mining. Only in the stone core, not in deepslate.

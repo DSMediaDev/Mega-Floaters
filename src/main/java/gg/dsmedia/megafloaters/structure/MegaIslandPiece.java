@@ -7,6 +7,7 @@ import gg.dsmedia.megafloaters.integration.AeronauticsCompat;
 import gg.dsmedia.megafloaters.structure.shape.ColumnSpec;
 import gg.dsmedia.megafloaters.structure.shape.MegaShape;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
@@ -17,6 +18,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
@@ -36,6 +38,9 @@ public class MegaIslandPiece extends StructurePiece {
     /** Hanging-vine chain length. Rolled per rim column for organic variation. */
     private static final int VINE_MIN_LENGTH = 2;
     private static final int VINE_MAX_LENGTH = 6;
+
+    /** Fraction of eligible rim columns that grow a hanging vine chain. */
+    private static final float VINE_DENSITY = 0.5f;
 
     private final long seed;
     private final ChunkPos anchor;
@@ -65,20 +70,21 @@ public class MegaIslandPiece extends StructurePiece {
         MegaIslandParams params = MegaIslandParams.fromSeed(seed, anchor);
         MegaShape shape = params.shape();
 
-        // Sample biome at THIS piece's chunk, not the island center. Querying a
-        // far-away column throws "Requested chunk unavailable" (WorldGenRegion only
-        // exposes chunks near the one being generated) and aborts generation.
-        // Sampling locally also gives mega islands that straddle a biome boundary
-        // a natural palette transition.
         BlockPos biomeProbe = new BlockPos(chunkPos.getMiddleBlockX(),
                 params.center().getY(), chunkPos.getMiddleBlockZ());
         Holder<Biome> biome = level.getBiome(biomeProbe);
         SurfacePalette palette = SurfacePaletteRegistry.select(biome, shape.getSerializedName());
         boolean vinesEligible = LayerBlocks.supportsHangingVines(palette);
+        boolean craterFill = (shape == MegaShape.CRATER) && AeronauticsCompat.isActive();
 
         BlockPos.MutableBlockPos mut = new BlockPos.MutableBlockPos();
         int chunkMinX = chunkPos.getMinBlockX();
         int chunkMinZ = chunkPos.getMinBlockZ();
+
+        // Pad the levitite fill ceiling by the rim's top-noise amplitude so the
+        // pool reaches the highest noisy rim spot rather than dipping below it
+        // by 1–2 blocks. Reads as "brim full" everywhere.
+        int craterBrimY = params.center().getY() + MegaShape.TOP_AMP;
 
         for (int dx = 0; dx < 16; dx++) {
             int worldX = chunkMinX + dx;
@@ -93,29 +99,34 @@ public class MegaIslandPiece extends StructurePiece {
                 int columnThickness = col.thickness();
                 if (columnThickness <= 0) continue;
 
+                // Sample the four cardinal neighbours once per column and reuse
+                // for both rim detection (vines, exposure flag bootstrap) and
+                // per-block exposure (ore hiding).
+                ColumnSpec nE = shape.columnAt(params, worldX + 1, worldZ);
+                ColumnSpec nW = shape.columnAt(params, worldX - 1, worldZ);
+                ColumnSpec nS = shape.columnAt(params, worldX, worldZ + 1);
+                ColumnSpec nN = shape.columnAt(params, worldX, worldZ - 1);
+                boolean isRim = (nE == null) || (nW == null) || (nS == null) || (nN == null);
+
                 for (int dyFromTop = 0; dyFromTop < columnThickness; dyFromTop++) {
                     int worldY = col.topY() - dyFromTop;
                     if (worldY < writeBounds.minY() || worldY > writeBounds.maxY()) continue;
 
+                    boolean exposed = isExposedAt(worldY, nE, nW, nS, nN);
                     BlockState block = LayerBlocks.pick(seed, palette,
-                            worldX, worldY, worldZ, dyFromTop, columnThickness, col.surface());
+                            worldX, worldY, worldZ, dyFromTop, columnThickness,
+                            col.surface(), exposed);
                     mut.set(worldX, worldY, worldZ);
                     level.setBlock(mut, block, 2);
                 }
 
-                // CRATER basins are the only natural source of levitite blend in
-                // the pack. Fill the depression from the basin surface up to rim
-                // level so the pool reads as "this crater contains a lake of
-                // levitite" rather than a 1-block wet floor.
-                if (col.surface() == ColumnSpec.Surface.BASIN
-                        && shape == MegaShape.CRATER
-                        && AeronauticsCompat.isActive()) {
+                if (craterFill && col.surface() == ColumnSpec.Surface.BASIN) {
                     fillBasinWithLevitite(level, writeBounds, mut,
-                            worldX, worldZ, col.topY(), params.center().getY());
+                            worldX, worldZ, col.topY(), craterBrimY);
                 }
 
-                if (vinesEligible && col.surface() == ColumnSpec.Surface.SOLID
-                        && isRim(shape, params, worldX, worldZ)) {
+                if (isRim && vinesEligible && col.surface() == ColumnSpec.Surface.SOLID
+                        && rng.nextFloat() < VINE_DENSITY) {
                     hangVines(level, writeBounds, mut, worldX, col.bottomY(), worldZ, rng);
                 }
             }
@@ -123,29 +134,35 @@ public class MegaIslandPiece extends StructurePiece {
     }
 
     /**
-     * A column is a rim if any of its four cardinal XZ neighbours falls outside
-     * the shape's footprint. Works for every shape — circular, ringed, elongated
-     * — without needing shape-specific geometry.
+     * A column block is exposed to air when at least one cardinal neighbour at
+     * the same Y is either outside the footprint or sits above/below this Y in
+     * its own column. Used to suppress ores at exposed rim positions so they
+     * don't read as "free diamonds visible from a thousand blocks away."
      */
-    private static boolean isRim(MegaShape shape, MegaIslandParams params, int wx, int wz) {
-        return shape.columnAt(params, wx + 1, wz) == null
-            || shape.columnAt(params, wx - 1, wz) == null
-            || shape.columnAt(params, wx, wz + 1) == null
-            || shape.columnAt(params, wx, wz - 1) == null;
+    private static boolean isExposedAt(int worldY, ColumnSpec nE, ColumnSpec nW,
+                                       ColumnSpec nS, ColumnSpec nN) {
+        return isExposedDir(worldY, nE)
+            || isExposedDir(worldY, nW)
+            || isExposedDir(worldY, nS)
+            || isExposedDir(worldY, nN);
+    }
+
+    private static boolean isExposedDir(int worldY, ColumnSpec n) {
+        return n == null || worldY > n.topY() || worldY < n.bottomY();
     }
 
     /**
      * Fill a CRATER basin column with levitite_blend source blocks from one
-     * block above the basin surface up to rim level. Adjacent pieces do the
-     * same for their columns; the pool reads as a single continuous lake
-     * across chunk boundaries because every fluid block is a source block.
+     * block above the basin surface up to {@code brimY}. Every fluid block is
+     * a source so adjacent chunks stitch into one continuous pool without
+     * needing fluid-flow propagation across chunk boundaries.
      */
     private static void fillBasinWithLevitite(WorldGenLevel level, BoundingBox writeBounds,
                                               BlockPos.MutableBlockPos mut,
-                                              int wx, int wz, int basinTopY, int rimY) {
+                                              int wx, int wz, int basinTopY, int brimY) {
         BlockState blend = AeronauticsCompat.levititeBlend();
         if (blend == null) return;
-        for (int y = basinTopY + 1; y <= rimY; y++) {
+        for (int y = basinTopY + 1; y <= brimY; y++) {
             if (y < writeBounds.minY() || y > writeBounds.maxY()) continue;
             mut.set(wx, y, wz);
             level.setBlock(mut, blend, 2);
@@ -154,14 +171,17 @@ public class MegaIslandPiece extends StructurePiece {
 
     /**
      * Hang {@value VINE_MIN_LENGTH}–{@value VINE_MAX_LENGTH} vines directly
-     * beneath the island's underside. Every vine in the chain is placed with
-     * the {@code up} face attached — functionally survives a block update and
-     * renders as a continuous hanging curtain.
+     * beneath the island's underside. Every vine in the chain shares the same
+     * cardinal face (NORTH/SOUTH/EAST/WEST), rolled once per chain — the
+     * resulting block reads as a vertical sheet of vine, and stacked chain
+     * blocks render as a continuous curtain instead of detached horizontal
+     * patches (which is what setting {@code UP} would have produced).
      */
     private static void hangVines(WorldGenLevel level, BoundingBox writeBounds,
                                   BlockPos.MutableBlockPos mut,
                                   int wx, int columnBottomY, int wz, RandomSource rng) {
-        BlockState vine = Blocks.VINE.defaultBlockState().setValue(VineBlock.UP, Boolean.TRUE);
+        BooleanProperty face = vineFace(rng);
+        BlockState vine = Blocks.VINE.defaultBlockState().setValue(face, Boolean.TRUE);
         int length = VINE_MIN_LENGTH + rng.nextInt(VINE_MAX_LENGTH - VINE_MIN_LENGTH + 1);
         for (int i = 1; i <= length; i++) {
             int worldY = columnBottomY - i;
@@ -170,5 +190,16 @@ public class MegaIslandPiece extends StructurePiece {
             if (!level.isEmptyBlock(mut)) break;
             level.setBlock(mut, vine, 2);
         }
+    }
+
+    private static BooleanProperty vineFace(RandomSource rng) {
+        Direction d = Direction.from2DDataValue(rng.nextInt(4));
+        return switch (d) {
+            case NORTH -> VineBlock.NORTH;
+            case SOUTH -> VineBlock.SOUTH;
+            case EAST  -> VineBlock.EAST;
+            case WEST  -> VineBlock.WEST;
+            default    -> VineBlock.NORTH;
+        };
     }
 }

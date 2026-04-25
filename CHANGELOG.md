@@ -7,6 +7,26 @@ Versioning: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+- **Hanging vines now hang vertically and connect.** The previous
+  pass placed each vine with the `up` face attached, which renders
+  as a horizontal sheet on top of every block — chains looked like
+  detached green discs. Vines now use a randomly-rolled cardinal
+  face (north/south/east/west) per chain, so each block reads as
+  a vertical sheet and stacked blocks form a continuous curtain.
+- **Vine density halved.** Previously every grass-topped rim column
+  grew vines; now ~50% do. Less curtain, more accent.
+- **Ores no longer poke out of mega-island sides.** Air-exposed
+  positions (rim columns, vertical steps between PLATEAU tiers) get
+  the palette core block instead of ore. Stone variants and the
+  pearlescent levitite scatter still appear normally — only the
+  free-coal-from-the-sky-island problem is gone.
+- **Crater pools now fill to the brim.** The pool ceiling was at
+  the un-noised rim Y, which left it sitting 1–2 blocks below the
+  actual rim wherever the rim's top noise pushed up. Pool ceiling
+  now pads up by the rim noise amplitude so the levitite reaches
+  every part of the rim.
+
 ### Added
 - **Overworld-style layering on mega islands.** The exterior is no
   longer a single block of stone. Cores now carry the familiar

@@ -291,13 +291,13 @@ public enum MegaShape implements StringRepresentable {
      * by this so noise that pushes the rim outward doesn't fall in a chunk
      * that didn't get assigned a piece.
      */
-    static final int EDGE_AMP = 4;
+    public static final int EDGE_AMP = 4;
 
     /** Inner-rim perturbation (basin/ring inner boundaries). */
-    static final int INNER_AMP = 3;
+    public static final int INNER_AMP = 3;
 
     /** Top-surface vertical roll amplitude. */
-    static final int TOP_AMP = 2;
+    public static final int TOP_AMP = 2;
 
     /** Wedge boundary perturbation (HORSESHOE). */
     static final int WEDGE_NOISE = 4;
