@@ -7,148 +7,96 @@ Versioning: [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-04-25
+
 ### Added
-- **Vegetation on mega islands.** Every piece of a mega island now
-  runs the biome's full vegetation pass — ground cover (short grass,
-  ferns, dead bushes, flowers) scatters at palette density across all
-  solid top-surface positions; trees are attempted up to the palette's
-  `maxTrees` count (capped at 3) per chunk, so a forest mega island
-  fills in with oaks and birch while desert and badlands stay bare.
-- **Ponds on mega islands.** Biomes eligible for water features
-  (grass, forest, taiga, mangrove, jungle) have an 85% chance of
-  spawning a circular pond (radius ≈ island radius ÷ 12) carved into
-  the top surface. For a radius-80 island the pond is ~6 blocks wide
-  — large enough to read as a lake, small enough not to dominate.
-- **Ancient ruins on mega islands.** 10% of mega islands (regardless
-  of biome) spawn a crumbling cobblestone ruin with a loot chest,
-  placed on an interior top-surface position ~65% of the island's
-  radius from its centre.
+- **Mega islands** — a new structure-based generator places one giant
+  island per ~32×32 chunk region. Six shapes, none of them circular:
+  - **Plateau** — three concentric tiers eroded down toward the rim.
+  - **Crater** — disc with a central basin flooded with Levitite Blend
+    (Create Aeronautics). This is now the **only** natural source of
+    Levitite Blend — underground pools and sky formations have been
+    removed from DS: Skybound.
+  - **Archipelago** — three to seven sub-mesas at staggered altitudes;
+    overlapping subs blend into smooth saddles.
+  - **Horseshoe** — C-shape ring with one quadrant cut open.
+  - **Ridge** — narrow island at a 3:1 aspect ratio, randomly rotated.
+  - **Atoll** — outer ring with a shallow basin inside.
+  Edges are perturbed by deterministic 2D noise (±4 blocks), top
+  surfaces roll ±2 blocks, and no seams appear at chunk boundaries.
+  Mega islands roll radius 60–100 and thickness 28–56 blocks.
+- **Overworld-style layering on mega islands.** Cores carry the full
+  stratigraphy: top → 3 sub-surface layers → stone core with ~18%
+  granite/diorite/andesite speckles → deepslate transition (bottom 8
+  layers of thick cores) → underside. Ores scatter at ~2× overworld
+  density, each in its correct Y band. Deepslate ore variants inside
+  the deepslate zone. Non-stone cores (terracotta, end stone) keep
+  their palette unchanged.
+- **Pearlescent levitite in mega-island cores** (Create Aeronautics).
+  Sparse scatter of `pearlescent_levitite` embedded in stone — visual
+  "this is why it floats" reward when strip-mining.
+- **Hanging vines on grass-topped mega islands.** Rim columns in
+  jungle/forest/plains/swamp biomes grow 2–6 blocks of vanilla vines
+  hanging beneath the island. Desert, badlands, snow, and end stay bare.
+- **Vegetation on mega islands.** Ground cover (short grass, ferns,
+  flowers, dead bushes) scatters at palette density across all solid
+  top-surface positions per chunk. Trees attempt up to `min(maxTrees,
+  3)` placements per chunk from interior positions — a forest island
+  fills in with oaks and birch while desert stays bare.
+- **Ponds on mega islands.** Eligible biomes (grass, forest, taiga,
+  mangrove, jungle) have an 85% chance of a circular pond carved into
+  the top surface. Radius ≈ island radius ÷ 12 (~5–8 blocks for a
+  typical island).
+- **Ancient ruins on mega islands.** 10% of mega islands spawn a
+  crumbling cobblestone ruin with a loot chest, on an interior
+  top-surface position ~65% of the island radius from its centre.
 - **Dragon nests on mega islands.** 15% of mega islands spawn a
-  cobblestone-rimmed sand nest ~65% of the island's radius from its
-  centre, in a different direction from any ruin on the same island.
-  BDD eggs populate the nest as normal when Bluedude Dragons is
-  loaded.
-- **Mega islands registered in IslandRegistry (A.4).** The anchor
-  chunk's piece writes one `IslandRecord` per island on first
-  generation. The record's UUID is derived from the island seed so it
-  is stable across world saves/reloads — players won't rediscover the
-  same island twice. Archetype IDs follow the pattern
-  `megafloaters:mega_<shape>` (e.g. `mega_crater`, `mega_plateau`).
-- **Hostile-mob suppression on mega islands (A.4).** Every piece flags
-  its own chunk with the `no_hostiles` attachment during postProcess,
-  so natural monster spawns are cancelled across the full mega-island
-  footprint the same way they are on satellite islands.
-- **Discovery fires at the rim for mega islands.** `DiscoveryTracker`
-  previously triggered at a fixed 32-block radius from the island
-  centre. For mega islands (radius 60–100) that required the player
-  to walk deep into the interior. Discovery radius is now
-  `max(32, island.radius())` per island, so approaching any mega
-  island's rim fires `IslandDiscoveredEvent` immediately.
+  cobblestone-rimmed sand nest, in a different direction from any ruin.
+  BDD eggs populate normally when Bluedude Dragons is loaded.
+- **Mega islands in IslandRegistry.** The anchor-chunk piece writes one
+  `IslandRecord` per island with a stable deterministic UUID (no
+  rediscovery after a world reload). Archetype IDs:
+  `megafloaters:mega_<shape>`.
+- **`IslandDiscoveredEvent` fires at the rim for mega islands.** The
+  discovery radius is now `max(32, island.radius())` per island.
+  Approaching a mega island's edge triggers discovery immediately
+  instead of requiring a walk to the centre.
 
 ### Fixed
-- **Hanging vines now hang vertically and connect.** The previous
-  pass placed each vine with the `up` face attached, which renders
-  as a horizontal sheet on top of every block — chains looked like
-  detached green discs. Vines now use a randomly-rolled cardinal
-  face (north/south/east/west) per chain, so each block reads as
-  a vertical sheet and stacked blocks form a continuous curtain.
-- **Vine density halved.** Previously every grass-topped rim column
-  grew vines; now ~50% do. Less curtain, more accent.
+- **Hanging vines now hang vertically and connect.** The previous pass
+  set `VineBlock.UP=true`, rendering each block as a horizontal top-face
+  sheet — chains looked like floating green discs. Vines now use a
+  randomly-rolled cardinal face per chain so blocks read as vertical
+  sheets forming a continuous curtain.
+- **Vine density halved.** Previously every eligible rim column grew
+  vines; now ~50% do.
 - **Ores no longer poke out of mega-island sides.** Air-exposed
-  positions (rim columns, vertical steps between PLATEAU tiers) get
-  the palette core block instead of ore. Stone variants and the
-  pearlescent levitite scatter still appear normally — only the
-  free-coal-from-the-sky-island problem is gone.
-- **Crater pools now fill to the brim.** The pool ceiling was at
-  the un-noised rim Y, which left it sitting 1–2 blocks below the
-  actual rim wherever the rim's top noise pushed up. Pool ceiling
-  now pads up by the rim noise amplitude so the levitite reaches
-  every part of the rim.
-
-### Added
-- **Overworld-style layering on mega islands.** The exterior is no
-  longer a single block of stone. Cores now carry the familiar
-  stratigraphy: top (grass/sand/etc) → 3 layers of sub-surface
-  (dirt/sandstone) → stone core with ~18% granite/diorite/andesite
-  speckles → deepslate transition for the bottom eight layers of
-  thick cores → underside. Ores scatter through the core at roughly
-  2× overworld density (coal, iron, copper, redstone, gold, lapis,
-  diamond — each with the right Y-band so diamonds don't appear 4
-  blocks from the grass). Deepslate variants are used inside the
-  deepslate zone. Non-stone cores (badlands terracotta, end stone)
-  keep their palette core unchanged for now.
-- **Pearlescent levitite sprinkle.** Where Create Aeronautics is
-  installed, mega islands carry a scattering of pearlescent_levitite
-  blocks embedded in their stone cores — a cheap visual "this is why
-  it floats" reward for strip-mining.
-- **Hanging vines on grass-topped mega islands.** Rim columns in
-  jungle/forest/plains/swamp palettes grow 2–6 blocks of vanilla
-  vines hanging beneath the island. Desert, badlands, snow, and end
-  palettes stay bare.
-- **Crater mega islands fill with Levitite Blend.** The newly-carved
-  basin on CRATER-shape mega islands floods with aeronautics:levitite_blend
-  from the basin surface up to rim level. This is now the **only**
-  natural source of Levitite Blend in the pack — the old
-  `megapack:levitite_pool` (underground) and `levitite_sky_formation`
-  (on Rob's Floating Islands) features will be removed from the
-  DS: Skybound modpack in the next pack release. Expect to fly, not dig.
-
-### Changed
-- **CRATER shape weight bumped** (1.5 → 2.2) so the levitite-bearing
-  crater variant accounts for roughly one in four mega islands instead
-  of one in six, now that it's the sole natural source of Levitite
-  Blend.
-- **Smaller satellite islands spawn less often.** The small-island
-  placement rarity moved from 1-in-15 chunks to 1-in-30, cutting
-  overall satellite density roughly in half. Mega islands are now
-  the intended primary landmark; satellites are incidental cover
-  around them. A proper anchor-and-satellite clustering pass (the
-  "one MASSIVE island + smaller ones close by" layout) still to come.
-- **Mega islands stopped looking like WorldEdit primitives.** Outer
-  rims, top surfaces, and (where applicable) inner rings, crater
-  lips, and horseshoe wedge cuts are all perturbed by deterministic
-  2D value noise. Edges roll ±4 blocks; the top surface roll is ±2
-  blocks. Adjacent chunk pieces sample the same noise field so no
-  seams show up at chunk boundaries. Archipelago shapes also got a
-  bell-curve blend between overlapping sub-mesas — joins now read
-  as smooth saddles instead of step-cut spheres.
-
-### Added
-- **Mega islands (Phase A.2 — geometry only, no surface features yet).**
-  A new structure-based generator places one rare giant island per
-  ~32×32 chunk region. Mega islands roll a radius of 60–100 blocks
-  and a thickness of 28–56 blocks — roughly 5–10× the size of the
-  existing satellite islands. Six brand-new shapes ship with this
-  release, none of them perfectly round:
-  - **Plateau** — three concentric tiers stepping down toward the
-    rim, like a layered Avatar mountain.
-  - **Crater** — disc with a central depression carved into the top
-    (basin gets flooded once Phase A.3 lands its sub-feature pass).
-  - **Archipelago** — three to seven large sub-mesas at staggered
-    altitudes inside a single footprint, reading as a chain of
-    overlapping terraces.
-  - **Horseshoe** — C-shape ring with one quadrant cut open; the
-    opening direction is random per island.
-  - **Ridge** — long, narrow island with a 3:1 length-to-width
-    ratio, randomly rotated about its center. Stretches across far
-    more chunks than its width suggests.
-  - **Atoll** — outer ring with a shallow basin in the middle; A.3
-    will fill the basin with water.
-  Vegetation, ponds, ores, and ruins land in the next update — for
-  now mega islands are bare terrain with biome-matched surface
-  blocks. Hostile-mob suppression and registry integration also
-  arrive in subsequent updates, so for v0.5.0-alpha purposes treat
-  them as a "go look at the geometry" milestone, not a finished
-  feature.
-
-### Changed
+  positions (rim columns, vertical steps between PLATEAU tiers) receive
+  the palette core block instead of ore. Stone variants and pearlescent
+  levitite scatter are unaffected.
+- **Crater pools now fill to the brim.** The fill ceiling was at the
+  un-noised rim Y, leaving it 1–2 blocks below the actual rim wherever
+  top-surface noise pushed the rim up. The ceiling is now padded by the
+  noise amplitude.
+- **Hostile-mob suppression on mega islands.** Every chunk in the
+  mega-island footprint is flagged `no_hostiles` so natural monster
+  spawns are cancelled across the full island, matching the behaviour
+  of satellite islands.
 - **Spire and cone islands no longer have flat bottoms.** Spires now
-  taper from full body width down to half-width over the bottom third
-  of their height, matching the taper convention already used by mesas
-  and clusters. Cone islands lost the 1-block ring ledge that used to
-  sit at the disc-to-cone seam — the underside now reads as one
-  continuous taper from disc bottom to point. Every island archetype
-  has a properly tapered underside now.
+  taper from full body width to half-width over the bottom third.
+  Cone islands lost the 1-block ring ledge at the disc-to-cone seam.
+  Every island archetype now has a properly tapered underside.
+
+### Changed
+- **Satellite island rarity 4× lower than v0.3.0** (base_rarity 15 →
+  60 overworld, 15 → 30 end). Mega islands are now the primary sky
+  landmark; satellites are scattered accent pieces between them.
+- **CRATER shape weight bumped** (1.5 → 2.2) so the levitite-bearing
+  crater accounts for ~1 in 4 mega islands, now that it is the sole
+  natural source of Levitite Blend.
+- **Mesa-style islands get a tapered underside.** The bottom 50% of a
+  mesa's vertical extent narrows from full radius at the midpoint to 50%
+  radius at the base. Cluster sub-discs pick up the same taper.
 
 ## [0.4.2] - 2026-04-22
 
